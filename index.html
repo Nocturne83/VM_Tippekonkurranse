@@ -7,11 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy:#0a1628;--navy-l:#112040;--cyan:#00b4d8;--cyan-d:#0096c7;
-  --gold:#f4c400;--white:#ffffff;--text:#e8edf5;--muted:#6b8cae;
-  --border:#1a2e4a;--card:#0f1e35;--red:#e05050;--green:#2dc653;
-}
+:root{--navy:#0a1628;--navy-l:#112040;--cyan:#00b4d8;--cyan-d:#0096c7;--gold:#f4c400;--white:#ffffff;--text:#e8edf5;--muted:#6b8cae;--border:#1a2e4a;--card:#0f1e35;--red:#e05050}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--text);min-height:100vh}
 header{background:var(--navy-l);border-bottom:2px solid var(--cyan);padding:0 1.5rem;position:sticky;top:0;z-index:100}
@@ -68,7 +64,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .bracket-rounds{display:flex;gap:1.25rem;min-width:max-content}
 .bracket-round{display:flex;flex-direction:column;gap:.4rem}
 .bracket-round-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;text-align:center}
-.bracket-match{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;width:155px}
+.bracket-match{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;width:160px}
 .bracket-team{padding:.4rem .6rem;font-size:.8rem;display:flex;align-items:center;justify-content:space-between}
 .bracket-team.winner{background:rgba(0,180,216,.15);color:var(--white);font-weight:600}
 .participant-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
@@ -125,7 +121,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   </section>
   <section id="sluttspill" class="section">
     <div class="page-title">&#128302; Sluttspill-tips</div>
-    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Antall deltakere som har tippet hvert lag til å nå runden.</p>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Antall deltakere som har tippet hvert lag til &aring; n&aring; runden.</p>
     <div id="knockout-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
   </section>
   <section id="deltakere" class="section">
@@ -3632,13 +3628,594 @@ const PREDICTIONS = [
       ],
       "champion": "Argentina"
     }
+  },
+  {
+    "name": "Marius",
+    "groupMatches": [
+      {
+        "num": 1,
+        "home": "Mexico",
+        "away": "Sør-Afrika",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 2,
+        "home": "Sør-Korea",
+        "away": "Tsjekkia",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 3,
+        "home": "Canada",
+        "away": "Bosnia-Hercegovina",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 4,
+        "home": "USA",
+        "away": "Paraguay",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 5,
+        "home": "Haiti",
+        "away": "Skottland",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 6,
+        "home": "Australia",
+        "away": "Tyrkia",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 7,
+        "home": "Brasil",
+        "away": "Marokko",
+        "hg": 1,
+        "ag": 2
+      },
+      {
+        "num": 8,
+        "home": "Qatar",
+        "away": "Sveits",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 9,
+        "home": "Elfenbenskysten",
+        "away": "Ecuador",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 10,
+        "home": "Tyskland",
+        "away": "Curaçao",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 11,
+        "home": "Nederland",
+        "away": "Japan",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 12,
+        "home": "Sverige",
+        "away": "Tunisia",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 13,
+        "home": "Saudi-Arabia",
+        "away": "Uruguay",
+        "hg": 0,
+        "ag": 1
+      },
+      {
+        "num": 14,
+        "home": "Spania",
+        "away": "Kapp Verde",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 15,
+        "home": "Iran",
+        "away": "New Zealand",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 16,
+        "home": "Belgia",
+        "away": "Egypt",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 17,
+        "home": "Frankrike",
+        "away": "Senegal",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 18,
+        "home": "Irak",
+        "away": "Norge",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 19,
+        "home": "Argentina",
+        "away": "Algerie",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 20,
+        "home": "Østerrike",
+        "away": "Jordan",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 21,
+        "home": "Ghana",
+        "away": "Panama",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 22,
+        "home": "England",
+        "away": "Kroatia",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 23,
+        "home": "Portugal",
+        "away": "DR Kongo",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 24,
+        "home": "Usbekistan",
+        "away": "Colombia",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 25,
+        "home": "Tsjekkia",
+        "away": "Sør-Afrika",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 26,
+        "home": "Sveits",
+        "away": "Bosnia-Hercegovina",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 27,
+        "home": "Canada",
+        "away": "Qatar",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 28,
+        "home": "Mexico",
+        "away": "Sør-Korea",
+        "hg": 3,
+        "ag": 1
+      },
+      {
+        "num": 29,
+        "home": "Brasil",
+        "away": "Haiti",
+        "hg": 3,
+        "ag": 0
+      },
+      {
+        "num": 30,
+        "home": "Skottland",
+        "away": "Marokko",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 31,
+        "home": "USA",
+        "away": "Australia",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 32,
+        "home": "Tyrkia",
+        "away": "Paraguay",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 33,
+        "home": "Tyskland",
+        "away": "Elfenbenskysten",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 34,
+        "home": "Ecuador",
+        "away": "Curaçao",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 35,
+        "home": "Nederland",
+        "away": "Sverige",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 36,
+        "home": "Tunisia",
+        "away": "Japan",
+        "hg": 0,
+        "ag": 1
+      },
+      {
+        "num": 37,
+        "home": "Uruguay",
+        "away": "Kapp Verde",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 38,
+        "home": "Spania",
+        "away": "Saudi-Arabia",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 39,
+        "home": "Belgia",
+        "away": "Iran",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 40,
+        "home": "New Zealand",
+        "away": "Egypt",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 41,
+        "home": "Norge",
+        "away": "Senegal",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 42,
+        "home": "Frankrike",
+        "away": "Irak",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 43,
+        "home": "Argentina",
+        "away": "Østerrike",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 44,
+        "home": "Jordan",
+        "away": "Algerie",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 45,
+        "home": "England",
+        "away": "Ghana",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 46,
+        "home": "Panama",
+        "away": "Kroatia",
+        "hg": 0,
+        "ag": 1
+      },
+      {
+        "num": 47,
+        "home": "Portugal",
+        "away": "Usbekistan",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 48,
+        "home": "Colombia",
+        "away": "DR Kongo",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 49,
+        "home": "Skottland",
+        "away": "Brasil",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 50,
+        "home": "Marokko",
+        "away": "Haiti",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 51,
+        "home": "Sveits",
+        "away": "Canada",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 52,
+        "home": "Bosnia-Hercegovina",
+        "away": "Qatar",
+        "hg": 2,
+        "ag": 1
+      },
+      {
+        "num": 53,
+        "home": "Tsjekkia",
+        "away": "Mexico",
+        "hg": 1,
+        "ag": 2
+      },
+      {
+        "num": 54,
+        "home": "Sør-Afrika",
+        "away": "Sør-Korea",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 55,
+        "home": "Curaçao",
+        "away": "Elfenbenskysten",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 56,
+        "home": "Ecuador",
+        "away": "Tyskland",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 57,
+        "home": "Japan",
+        "away": "Sverige",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 58,
+        "home": "Tunisia",
+        "away": "Nederland",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 59,
+        "home": "Tyrkia",
+        "away": "USA",
+        "hg": 1,
+        "ag": 0
+      },
+      {
+        "num": 60,
+        "home": "Paraguay",
+        "away": "Australia",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 61,
+        "home": "Norge",
+        "away": "Frankrike",
+        "hg": 1,
+        "ag": 2
+      },
+      {
+        "num": 62,
+        "home": "Senegal",
+        "away": "Irak",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 63,
+        "home": "Egypt",
+        "away": "Iran",
+        "hg": 2,
+        "ag": 0
+      },
+      {
+        "num": 64,
+        "home": "New Zealand",
+        "away": "Belgia",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 65,
+        "home": "Kapp Verde",
+        "away": "Saudi-Arabia",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 66,
+        "home": "Uruguay",
+        "away": "Spania",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 67,
+        "home": "Panama",
+        "away": "England",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 68,
+        "home": "Kroatia",
+        "away": "Ghana",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 69,
+        "home": "Algerie",
+        "away": "Østerrike",
+        "hg": 1,
+        "ag": 2
+      },
+      {
+        "num": 70,
+        "home": "Jordan",
+        "away": "Argentina",
+        "hg": 0,
+        "ag": 2
+      },
+      {
+        "num": 71,
+        "home": "Colombia",
+        "away": "Portugal",
+        "hg": 1,
+        "ag": 1
+      },
+      {
+        "num": 72,
+        "home": "DR Kongo",
+        "away": "Usbekistan",
+        "hg": 1,
+        "ag": 1
+      }
+    ],
+    "knockout": {
+      "r32": [
+        "Tyskland",
+        "Paraguay",
+        "Frankrike",
+        "Iran",
+        "Sør-Korea",
+        "Canada",
+        "Nederland",
+        "Brasil",
+        "Portugal",
+        "Kroatia",
+        "Spania",
+        "Østerrike",
+        "Tyrkia",
+        "Bosnia-Hercegovina",
+        "Belgia",
+        "Tsjekkia",
+        "Marokko",
+        "Sverige",
+        "Ecuador",
+        "Norge",
+        "Mexico",
+        "Japan",
+        "England",
+        "Senegal",
+        "Argentina",
+        "Uruguay",
+        "USA",
+        "Egypt",
+        "Sveits",
+        "Algerie",
+        "Colombia",
+        "Ghana"
+      ],
+      "r16": [
+        "Tyskland",
+        "Frankrike",
+        "Sør-Korea",
+        "Brasil",
+        "Portugal",
+        "Spania",
+        "Tyrkia",
+        "Belgia",
+        "Marokko",
+        "Norge",
+        "Mexico",
+        "England",
+        "Argentina",
+        "Egypt",
+        "Sveits",
+        "Colombia"
+      ],
+      "qf": [
+        "Frankrike",
+        "Brasil",
+        "Spania",
+        "Belgia",
+        "Norge",
+        "England",
+        "Argentina",
+        "Colombia"
+      ],
+      "sf": [
+        "Frankrike",
+        "Spania",
+        "Norge",
+        "Argentina"
+      ],
+      "champion": "Frankrike"
+    }
   }
 ];
 const POINTS = {"exactScore": 2, "correctResult": 3, "groupPosition": 2, "groupBonus": 10, "r32": 4, "r16": 6, "qf": 8, "sf": 10, "final": 10, "bronze": 10, "champion": 15};
 
+// Team name mapping: Excel (Norwegian) -> API (English)
 const TEAM_MAP = {
-  'Sor-Afrika':'South Africa','S\u00f8r-Afrika':'South Africa',
-  'S\u00f8r-Korea':'South Korea','Bosnia-Hercegovina':'Bosnia and Herzegovina',
+  'S\u00f8r-Afrika':'South Africa','S\u00f8r-Korea':'South Korea',
+  'Bosnia-Hercegovina':'Bosnia & Herzegovina',
   'Tsjekkia':'Czech Republic','Elfenbenskysten':'Ivory Coast',
   'Kapp Verde':'Cape Verde','Marokko':'Morocco','Skottland':'Scotland',
   'Sverige':'Sweden','Tyrkia':'Turkey','Frankrike':'France','Spania':'Spain',
@@ -3647,7 +4224,7 @@ const TEAM_MAP = {
   'Norge':'Norway','Algerie':'Algeria','\u00d8sterrike':'Austria',
   'Sveits':'Switzerland','Saudi-Arabia':'Saudi Arabia','Irak':'Iraq',
   'Jordan':'Jordan','Egypt':'Egypt','Qatar':'Qatar','DR Kongo':'DR Congo',
-  'Usbekistan':'Uzbekistan','New Zealand':'New Zealand','USA':'United States',
+  'Usbekistan':'Uzbekistan','New Zealand':'New Zealand','USA':'USA',
   'Mexico':'Mexico','Canada':'Canada','Uruguay':'Uruguay','Colombia':'Colombia',
   'Ecuador':'Ecuador','Paraguay':'Paraguay','Japan':'Japan','Ghana':'Ghana',
   'Tunisia':'Tunisia','Australia':'Australia','Panama':'Panama',
@@ -3657,10 +4234,10 @@ const TEAM_MAP = {
 const FLAGS = {
   'Mexico':'\ud83c\uddf2\ud83c\uddfd','South Africa':'\ud83c\uddff\ud83c\udde6',
   'South Korea':'\ud83c\uddf0\ud83c\uddf7','Czech Republic':'\ud83c\udde8\ud83c\uddff',
-  'Canada':'\ud83c\udde8\ud83c\udde6','Bosnia and Herzegovina':'\ud83c\udde7\ud83c\udde6',
+  'Canada':'\ud83c\udde8\ud83c\udde6','Bosnia & Herzegovina':'\ud83c\udde7\ud83c\udde6',
   'Qatar':'\ud83c\uddf6\ud83c\udde6','Switzerland':'\ud83c\udde8\ud83c\udded',
   'Brazil':'\ud83c\udde7\ud83c\uddf7','Morocco':'\ud83c\uddf2\ud83c\udde6',
-  'Haiti':'\ud83c\udded\ud83c\uddf9','United States':'\ud83c\uddfa\ud83c\uddf8',
+  'Haiti':'\ud83c\udded\ud83c\uddf9','USA':'\ud83c\uddfa\ud83c\uddf8',
   'Paraguay':'\ud83c\uddf5\ud83c\uddfe','Australia':'\ud83c\udde6\ud83c\uddfa',
   'Turkey':'\ud83c\uddf9\ud83c\uddf7','Germany':'\ud83c\udde9\ud83c\uddea',
   'Ivory Coast':'\ud83c\udde8\ud83c\uddee','Ecuador':'\ud83c\uddea\ud83c\udde8',
@@ -3685,16 +4262,12 @@ function norm(n){return n?(TEAM_MAP[n]||n):''}
 function flag(t){return FLAGS[norm(t)]||FLAGS[t]||'\ud83c\udff3\ufe0f'}
 function getRes(h,a){return h>a?'H':h<a?'B':'U'}
 function el(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
-
 function showSection(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
 }
-function togglePanel(id){
-  const e=document.getElementById(id);if(e)e.classList.toggle('open');
-}
+function togglePanel(id){const e=document.getElementById(id);if(e)e.classList.toggle('open')}
 
 const state={participants:[],results:{}};
 
@@ -3733,8 +4306,8 @@ async function boot(){
     state.participants=participants;
     renderAll();
   }catch(e){
-    el('status-bar','<span>&#9888;&#65039; Feil: '+e.message+'</span><span></span>');
-    el('leaderboard-content','<div class="error-msg">&#9888;&#65039; '+e.message+'</div>');
+    el('status-bar','<span>\u26a0\ufe0f Feil: '+e.message+'</span><span></span>');
+    el('leaderboard-content','<div class="error-msg">\u26a0\ufe0f '+e.message+'</div>');
   }
 }
 
@@ -3744,8 +4317,7 @@ function renderAll(){
   const now=new Date().toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
   el('status-bar','<span><span class="dot"></span>'+played+' av '+total+' kamper spilt</span><span>Oppdatert: '+now+'</span>');
 
-  // Leaderboard
-  const medals=['&#127945;','&#129352;','&#129353;'];
+  const medals=['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
   const rows=state.participants.map((p,i)=>`
     <tr>
       <td><span class="rank ${i<3?'rank-'+(i+1):''}">${medals[i]||i+1}</span> ${p.name}</td>
@@ -3755,7 +4327,6 @@ function renderAll(){
     </tr>`).join('');
   el('leaderboard-content',`<table class="leaderboard"><thead><tr><th>Deltaker</th><th>Poeng</th><th>Eksakt</th><th>Resultat</th></tr></thead><tbody>${rows}</tbody></table>`);
 
-  // Champions
   const champs=state.participants.filter(p=>p.knockout&&p.knockout.champion)
     .map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
       <span style="color:var(--muted);font-size:.9rem">${p.name}</span>
@@ -3763,11 +4334,8 @@ function renderAll(){
     </div>`).join('');
   el('champion-picks',champs||'<p style="color:var(--muted);font-size:.9rem">Ingen data.</p>');
 
-  // Matches
   const ref=state.participants[0];
-  if(!ref||!ref.groupMatches||!ref.groupMatches.length){
-    el('matches-content','<p style="color:var(--muted)">Ingen kampdata.</p>');
-  } else {
+  if(ref&&ref.groupMatches&&ref.groupMatches.length){
     const byGroup={};
     for(const match of ref.groupMatches){
       const g='Gruppe '+'ABCDEFGHIJKL'[Math.floor((match.num-1)/6)];
@@ -3778,13 +4346,12 @@ function renderAll(){
     }
     let mhtml='';
     for(const[grp,list]of Object.entries(byGroup)){
-      mhtml+=`<div class="match-group"><div class="group-header">&#9917; ${grp}</div>`;
+      mhtml+=`<div class="match-group"><div class="group-header">\u26bd ${grp}</div>`;
       for(const{match,actual,hEn,aEn}of list){
         const played=actual&&actual.played;
         const aH=played?actual.homeGoals:'\u2013';
         const aA=played?actual.awayGoals:'\u2013';
         const pid='pred-'+match.num;
-        // Build pred panel
         const pitems=state.participants.map(p=>{
           const pred=p.groupMatches&&p.groupMatches.find(m=>m.num===match.num);
           if(!pred)return`<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
@@ -3793,30 +4360,26 @@ function renderAll(){
             const flipped=actual.home!==norm(pred.home);
             const pH=flipped?pred.ag:pred.hg;
             const pA=flipped?pred.hg:pred.ag;
-            const isExact=pH===actual.homeGoals&&pA===actual.awayGoals;
-            const isCor=getRes(pH,pA)===getRes(actual.homeGoals,actual.awayGoals);
-            cls=isExact?'exact':isCor?'result':'wrong';
+            cls=(pH===actual.homeGoals&&pA===actual.awayGoals)?'exact':getRes(pH,pA)===getRes(actual.homeGoals,actual.awayGoals)?'result':'wrong';
           }
           return`<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
         }).join('');
-        mhtml+=`
-          <div class="match-row ${played?'played':''}" onclick="togglePanel('${pid}')">
-            <div class="team-name home">${flag(hEn)} ${match.home}</div>
-            <div class="score-box">${aH} \u2013 ${aA}</div>
-            <div class="team-name">${match.away} ${flag(aEn)}</div>
-          </div>
-          <div id="${pid}" class="predictions-panel">
-            <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Tips per deltaker</div>
-            <div class="pred-grid">${pitems}</div>
-            <div style="margin-top:.75rem;font-size:.72rem;color:var(--muted)"><span style="color:var(--gold)">&#9632;</span> Eksakt &nbsp;<span style="color:var(--cyan)">&#9632;</span> Riktig H/U/B &nbsp;<span style="opacity:.4">&#9632;</span> Feil</div>
-          </div>`;
+        mhtml+=`<div class="match-row ${played?'played':''}" onclick="togglePanel('${pid}')">
+          <div class="team-name home">${flag(hEn)} ${match.home}</div>
+          <div class="score-box">${aH} \u2013 ${aA}</div>
+          <div class="team-name">${match.away} ${flag(aEn)}</div>
+        </div>
+        <div id="${pid}" class="predictions-panel">
+          <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Tips per deltaker</div>
+          <div class="pred-grid">${pitems}</div>
+          <div style="margin-top:.75rem;font-size:.72rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;<span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;<span style="opacity:.4">\u25a0</span> Feil</div>
+        </div>`;
       }
       mhtml+='</div>';
     }
     el('matches-content',mhtml);
   }
 
-  // Knockout
   const rounds=[{key:'r32',label:'16-delsfin.'},{key:'r16',label:'8-delsfin.'},{key:'qf',label:'Kvartfinale'},{key:'sf',label:'Semifinale'}];
   let khtml='<div class="bracket"><div class="bracket-rounds">';
   for(const{key,label}of rounds){
@@ -3827,13 +4390,12 @@ function renderAll(){
     for(const[team,count]of sorted)khtml+=`<div class="bracket-match"><div class="bracket-team"><span>${flag(team)} ${team}</span><span style="color:var(--muted);font-size:.75rem">${count}/${state.participants.length}</span></div></div>`;
     khtml+='</div>';
   }
-  khtml+=`<div class="bracket-round"><div class="bracket-round-title">&#127942; Mester</div>`;
+  khtml+=`<div class="bracket-round"><div class="bracket-round-title">\ud83c\udfc6 Mester</div>`;
   for(const p of state.participants)if(p.knockout&&p.knockout.champion)
     khtml+=`<div class="bracket-match"><div class="bracket-team winner">${flag(p.knockout.champion)} ${p.knockout.champion} <span style="color:var(--muted);font-size:.7rem">(${p.name})</span></div></div>`;
   khtml+='</div></div></div>';
   el('knockout-content',khtml);
 
-  // Participants
   const phtml=state.participants.map(p=>{
     const champ=(p.knockout&&p.knockout.champion)||'\u2013';
     return`<div class="participant-card">
