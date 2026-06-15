@@ -82,22 +82,92 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-msg{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:1rem;color:var(--red);font-size:.9rem}
 .page-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.05em;margin-bottom:1.5rem}
-@media(max-width:600px){nav button{padding:.35rem .45rem;font-size:.75rem}.logo{font-size:1.3rem}.team-name{font-size:.78rem}}
+
+/* HAMBURGER */
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem;margin-left:.5rem}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .25s}
+
+/* DRAWER */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;backdrop-filter:blur(2px)}
+.drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:var(--navy-l);border-left:1px solid var(--border);z-index:300;transition:right .25s ease;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-overlay.open{display:block}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.drawer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--white)}
+.drawer-logo em{color:var(--cyan);font-style:normal}
+.drawer-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:.25rem}
+.drawer-nav{display:flex;flex-direction:column;padding:1rem 0}
+.drawer-nav button{background:none;border:none;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:1.1rem;letter-spacing:.05em;text-transform:uppercase;padding:.9rem 1.25rem;cursor:pointer;text-align:left;border-left:3px solid transparent;transition:all .15s}
+.drawer-nav button:hover{color:var(--cyan);background:rgba(0,180,216,.07)}
+.drawer-nav button.active{color:var(--cyan);border-left-color:var(--cyan);background:rgba(0,180,216,.07)}
+
+@media(max-width:700px){
+  .desktop-nav{display:none}
+  .hamburger{display:flex}
+  .logo{font-size:1.2rem}
+  main{padding:1.25rem 1rem}
+
+  /* HERO */
+  .hero{padding:1.25rem 0 1rem}
+  .hero .flags{font-size:1.2rem}
+
+  /* LEADERBOARD */
+  .leaderboard th:nth-child(3),
+  .leaderboard td:nth-child(3),
+  .leaderboard th:nth-child(4),
+  .leaderboard td:nth-child(4){display:none}
+  .pts-big{font-size:1.2rem}
+
+  /* MATCHES */
+  .match-row{padding:.5rem .6rem;gap:.4rem}
+  .team-name{font-size:.78rem}
+  .score-box{font-size:1.1rem}
+  .pred-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* PARTICIPANT CARDS */
+  .participant-name{font-size:1.2rem}
+  .participant-stats{grid-template-columns:repeat(2,1fr)}
+
+  /* STATUS BAR */
+  .status-bar{flex-direction:column;align-items:flex-start;gap:.25rem;font-size:.78rem}
+
+  /* BRACKET */
+  .bracket-match{width:135px}
+  .bracket-team{font-size:.72rem}
+}
 </style>
 </head>
 <body>
 <header>
   <div class="header-inner">
     <div class="logo">&#9917; VM <em>2026</em> &middot; Tippen</div>
-    <nav>
+    <nav class="desktop-nav">
       <button class="active" onclick="showSection('ledertavle',this)">&#127942; Ledertavle</button>
       <button onclick="showSection('kamper',this)">&#9917; Kamper</button>
       <button onclick="showSection('sluttspill',this)">&#128302; Sluttspill</button>
       <button onclick="showSection('deltakere',this)">&#128100; Deltakere</button>
       <button onclick="showSection('poeng',this)">&#128203; Poeng</button>
     </nav>
+    <button class="hamburger" onclick="toggleDrawer()" aria-label="Meny">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<div class="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <span class="drawer-logo">&#9917; VM <em>2026</em></span>
+    <button class="drawer-close" onclick="closeDrawer()">&#10005;</button>
+  </div>
+  <nav class="drawer-nav">
+    <button onclick="showSection('ledertavle',this);closeDrawer()">&#127942; Ledertavle</button>
+    <button onclick="showSection('kamper',this);closeDrawer()">&#9917; Kamper</button>
+    <button onclick="showSection('sluttspill',this);closeDrawer()">&#128302; Sluttspill</button>
+    <button onclick="showSection('deltakere',this);closeDrawer()">&#128100; Deltakere</button>
+    <button onclick="showSection('poeng',this);closeDrawer()">&#128203; Poeng</button>
+  </nav>
+</div>
 <main>
   <section id="ledertavle" class="section active">
     <div class="hero">
@@ -3757,10 +3827,23 @@ function norm(n){return n?(TEAM_MAP[n]||n):''}
 function flag(t){return FLAGS[norm(t)]||FLAGS[t]||'\ud83c\udff3\ufe0f'}
 function getRes(h,a){return h>a?'H':h<a?'B':'U'}
 function el(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
+
+function toggleDrawer(){
+  document.getElementById('drawer').classList.toggle('open');
+  document.querySelector('.drawer-overlay').classList.toggle('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.querySelector('.drawer-overlay').classList.remove('open');
+}
+
 function showSection(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  // sync active across both navs by section id
+  const label = {'ledertavle':'Ledertavle','kamper':'Kamper','sluttspill':'Sluttspill','deltakere':'Deltakere','poeng':'Poeng'};
 }
 function togglePanel(id){const e=document.getElementById(id);if(e)e.classList.toggle('open')}
 
