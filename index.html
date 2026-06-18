@@ -52,6 +52,20 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .channel-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.04em;padding:.15rem .5rem;border-radius:3px}
 .channel-badge.channel-nrk{background:rgba(0,180,216,.18);color:var(--cyan)}
 .channel-badge.channel-tv2{background:rgba(244,196,0,.18);color:var(--gold)}
+.today-section{background:var(--card);border:1px solid var(--cyan);border-radius:8px;margin-bottom:2rem;overflow:hidden}
+.today-header{background:linear-gradient(90deg,rgba(0,180,216,.25),rgba(0,180,216,.05));padding:.75rem 1.25rem;font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--white);letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.today-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.75rem;padding:.65rem 1.25rem;border-bottom:1px solid var(--border);font-size:.9rem}
+.today-row:last-child{border-bottom:none}
+.today-status{font-size:1rem}
+.today-teams{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.today-score{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--cyan);margin:0 .5rem;letter-spacing:.04em}
+.today-right{display:flex;align-items:center;gap:.5rem;white-space:nowrap}
+.today-kickoff{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:var(--white);letter-spacing:.03em}
+@media(max-width:700px){
+  .today-row{grid-template-columns:1fr;gap:.35rem;padding:.6rem .75rem;font-size:.82rem}
+  .today-status{display:none}
+  .today-right{justify-content:flex-end}
+}
 .team-name{font-weight:500;font-size:.9rem}
 .team-name.home{text-align:right}
 .score-box{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;white-space:nowrap;text-align:center;color:var(--white);letter-spacing:.05em}
@@ -81,6 +95,24 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .points-table tr{border-bottom:1px solid var(--border)}
 .points-table td{padding:.65rem .75rem;font-size:.9rem}
 .points-table td:last-child{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--cyan);width:3rem}
+.standings-group{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden}
+.standings-header{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--cyan);padding:.65rem 1rem;border-bottom:1px solid var(--border);letter-spacing:.04em}
+.standings-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.standings-table th{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:.4rem .35rem;text-align:center;border-bottom:1px solid var(--border);background:var(--navy)}
+.standings-table th.team-col{text-align:left;padding-left:.75rem}
+.standings-table td{padding:.45rem .35rem;text-align:center;border-bottom:1px solid var(--border)}
+.standings-table td.team-col{text-align:left;padding-left:.75rem;font-weight:500}
+.standings-table td.pos{font-family:'Bebas Neue',sans-serif;color:var(--muted);width:1.5rem}
+.standings-table td.pts-col{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--cyan);font-weight:700}
+.standings-table tr:last-child td{border-bottom:none}
+.standings-table tr.qual td.pos{color:var(--cyan)}
+.standings-table tr.qual{background:rgba(0,180,216,.04)}
+.standings-table tr.qual td:first-child{border-left:3px solid var(--cyan)}
+.standings-table tr.maybe td:first-child{border-left:3px solid rgba(244,196,0,.5)}
+@media(max-width:700px){
+  .standings-table th,.standings-table td{padding:.35rem .25rem;font-size:.75rem}
+  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem}
+}
 .loading{display:flex;align-items:center;justify-content:center;gap:.75rem;padding:3rem;color:var(--muted)}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -149,6 +181,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
       <button class="active" onclick="showSection('ledertavle',this)">&#127942; Ledertavle</button>
       <button onclick="showSection('kamper',this)">&#9917; Kamper</button>
       <button onclick="showSection('sluttspill',this)">&#128302; Sluttspill</button>
+      <button onclick="showSection('tabell',this)">&#128202; Tabell</button>
       <button onclick="showSection('deltakere',this)">&#128100; Deltakere</button>
       <button onclick="showSection('poeng',this)">&#128203; Poeng</button>
     </nav>
@@ -168,6 +201,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     <button onclick="showSection('ledertavle',this);closeDrawer()">&#127942; Ledertavle</button>
     <button onclick="showSection('kamper',this);closeDrawer()">&#9917; Kamper</button>
     <button onclick="showSection('sluttspill',this);closeDrawer()">&#128302; Sluttspill</button>
+    <button onclick="showSection('tabell',this);closeDrawer()">&#128202; Tabell</button>
     <button onclick="showSection('deltakere',this);closeDrawer()">&#128100; Deltakere</button>
     <button onclick="showSection('poeng',this);closeDrawer()">&#128203; Poeng</button>
   </nav>
@@ -197,6 +231,11 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     <div class="page-title">&#128302; Sluttspill-tips</div>
     <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Antall deltakere som har tippet hvert lag til &aring; n&aring; runden.</p>
     <div id="knockout-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
+  </section>
+  <section id="tabell" class="section">
+    <div class="page-title">&#128202; Tabeller &mdash; Gruppespill</div>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Live-beregnet ut fra spilte kamper. Sorteres p&aring; poeng, deretter m&aring;lforskjell, m&aring;l scoret.</p>
+    <div id="tabell-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
   </section>
   <section id="deltakere" class="section">
     <div class="page-title">&#128100; Deltakere</div>
@@ -3852,7 +3891,7 @@ function showSection(id,btn){
 function togglePanel(id){const e=document.getElementById(id);if(e)e.classList.toggle('open')}
 
 
-const CHANNEL_MAP = {"11.06 21:00": "TV2", "12.06 04:00": "NRK", "12.06 21:00": "NRK", "13.06 03:00": "TV2", "13.06 21:00": "NRK", "14.06 00:00": "TV2", "14.06 03:00": "TV2", "14.06 06:00": "TV2", "14.06 19:00": "NRK", "14.06 22:00": "TV2", "15.06 01:00": "TV2", "15.06 04:00": "TV2", "15.06 18:00": "TV2", "15.06 21:00": "NRK", "16.06 00:00": "NRK", "16.06 03:00": "NRK", "16.06 21:00": "TV2", "17.06 00:00": "TV2", "17.06 03:00": "NRK", "17.06 06:00": "NRK", "17.06 19:00": "NRK", "17.06 22:00": "TV2", "18.06 01:00": "TV2", "18.06 04:00": "TV2", "18.06 18:00": "NRK", "18.06 21:00": "TV2", "19.06 00:00": "TV2", "19.06 03:00": "TV2", "19.06 21:00": "NRK", "20.06 00:00": "NRK", "20.06 03:00": "NRK", "20.06 06:00": "NRK", "20.06 19:00": "NRK", "20.06 22:00": "TV2", "21.06 02:00": "TV2", "21.06 06:00": "NRK", "21.06 18:00": "NRK", "21.06 21:00": "TV2", "22.06 00:00": "TV2", "22.06 03:00": "TV2", "22.06 19:00": "TV2", "22.06 23:00": "NRK", "23.06 02:00": "NRK", "23.06 05:00": "TV2", "23.06 22:00": "NRK", "24.06 19:00": "TV2", "24.06 01:00": "NRK", "24.06 04:00": "TV2", "24.06 21:00": "NRK", "25.06 00:00": "NRK", "25.06 03:00": "TV2", "25.06 22:00": "TV2", "26.06 01:00": "TV2", "26.06 04:00": "NRK", "26.06 21:00": "NRK", "27.06 01:30": "NRK", "27.06 02:00": "NRK", "27.06 05:00": "TV2", "27.06 23:00": "TV2", "28.06 04:00": "NRK"};
+const CHANNEL_MAP = {"Mexico||South Africa": "TV2", "Czech Republic||South Korea": "NRK", "Bosnia & Herzegovina||Canada": "NRK", "Paraguay||USA": "TV2", "Qatar||Switzerland": "NRK", "Brazil||Morocco": "TV2", "Haiti||Scotland": "TV2", "Australia||Turkey": "TV2", "Curaçao||Germany": "NRK", "Japan||Netherlands": "TV2", "Ecuador||Ivory Coast": "TV2", "Sweden||Tunisia": "TV2", "Cape Verde||Spain": "TV2", "Belgium||Egypt": "NRK", "Saudi Arabia||Uruguay": "NRK", "Iran||New Zealand": "NRK", "France||Senegal": "TV2", "Iraq||Norway": "TV2", "Algeria||Argentina": "NRK", "Austria||Jordan": "NRK", "DR Congo||Portugal": "NRK", "Croatia||England": "TV2", "Ghana||Panama": "TV2", "Colombia||Uzbekistan": "TV2", "Czech Republic||South Africa": "NRK", "Bosnia & Herzegovina||Switzerland": "TV2", "Canada||Qatar": "TV2", "Mexico||South Korea": "TV2", "Australia||USA": "NRK", "Morocco||Scotland": "NRK", "Brazil||Haiti": "NRK", "Paraguay||Turkey": "NRK", "Netherlands||Sweden": "NRK", "Germany||Ivory Coast": "TV2", "Curaçao||Ecuador": "TV2", "Japan||Tunisia": "NRK", "Saudi Arabia||Spain": "NRK", "Belgium||Iran": "TV2", "Cape Verde||Uruguay": "TV2", "Egypt||New Zealand": "TV2", "Argentina||Austria": "TV2", "France||Iraq": "NRK", "Norway||Senegal": "NRK", "Algeria||Jordan": "TV2", "England||Ghana": "NRK", "Portugal||Uzbekistan": "TV2", "Croatia||Panama": "NRK", "Colombia||DR Congo": "TV2", "Canada||Switzerland": "NRK", "Bosnia & Herzegovina||Qatar": "NRK", "Brazil||Scotland": "NRK", "Haiti||Morocco": "NRK", "Czech Republic||Mexico": "TV2", "South Africa||South Korea": "TV2", "Curaçao||Ivory Coast": "TV2", "Ecuador||Germany": "TV2", "Netherlands||Tunisia": "TV2", "Japan||Sweden": "TV2", "Turkey||USA": "NRK", "Australia||Paraguay": "NRK", "France||Norway": "NRK", "Iraq||Senegal": "NRK", "Colombia||Portugal": "NRK", "DR Congo||Uzbekistan": "NRK", "Cape Verde||Saudi Arabia": "NRK", "Spain||Uruguay": "NRK", "Egypt||Iran": "TV2", "Belgium||New Zealand": "TV2", "England||Panama": "TV2", "Croatia||Ghana": "TV2", "Algeria||Austria": "NRK", "Argentina||Jordan": "NRK"};
 const FINAL_DATE = new Date('2026-07-19T21:00:00+02:00'); // Norsk sommertid
 
 function getCountdown() {
@@ -3873,31 +3912,40 @@ function toNorwegianTime(dateStr, timeStr) {
   if (!m) return null;
   const [, hh, mm, offset] = m;
   const utcOffset = parseInt(offset);
-  const localDate = new Date(dateStr + 'T' + hh.padStart(2,'0') + ':' + mm + ':00Z');
-  // localDate is parsed as UTC; subtract the local UTC offset to get true UTC, then add Norway's offset (+2 summer)
-  const trueUtcMs = localDate.getTime() - utcOffset*60*60*1000;
-  const norwayMs = trueUtcMs + 2*60*60*1000; // CEST = UTC+2
+  // Parse kickoff as if it were UTC, then shift to actual UTC, then to Norway (+2 CEST)
+  const fakeUtc = new Date(dateStr + 'T' + hh.padStart(2,'0') + ':' + mm + ':00Z');
+  const trueUtcMs = fakeUtc.getTime() - utcOffset*60*60*1000;
+  const norwayMs  = trueUtcMs + 2*60*60*1000;
   return new Date(norwayMs);
 }
 
-function getChannel(noTime) {
-  if (!noTime) return null;
-  const dd = String(noTime.getDate()).padStart(2,'0');
-  const mo = String(noTime.getMonth()+1).padStart(2,'0');
-  const hh = String(noTime.getHours()).padStart(2,'0');
-  const mi = String(noTime.getMinutes()).padStart(2,'0');
-  const key = `${dd}.${mo} ${hh}:${mi}`;
+// Use UTC getters so the result reflects the Norwegian-shifted time we stored
+function getChannel(home, away) {
+  if (!home || !away) return null;
+  const key = [home, away].sort().join('||');
   return CHANNEL_MAP[key] || null;
 }
 
 function formatNoTime(noTime) {
   if (!noTime) return null;
-  const days = ['s\u00f8n','man','tir','ons','tor','fre','l\u00f8r'];
-  const dd = String(noTime.getDate()).padStart(2,'0');
-  const mo = String(noTime.getMonth()+1).padStart(2,'0');
-  const hh = String(noTime.getHours()).padStart(2,'0');
-  const mi = String(noTime.getMinutes()).padStart(2,'0');
+  const dd = String(noTime.getUTCDate()).padStart(2,'0');
+  const mo = String(noTime.getUTCMonth()+1).padStart(2,'0');
+  const hh = String(noTime.getUTCHours()).padStart(2,'0');
+  const mi = String(noTime.getUTCMinutes()).padStart(2,'0');
   return `${dd}.${mo} kl. ${hh}:${mi}`;
+}
+
+// Get today's date in Norway as "DD.MM" for "Dagens kamper" filter
+function getTodayKey() {
+  const now = new Date();
+  // Norway is UTC+2 during CEST (June-July)
+  const norwayNow = new Date(now.getTime() + (2*60 - now.getTimezoneOffset())*60*1000);
+  return String(norwayNow.getUTCDate()).padStart(2,'0') + '.' + String(norwayNow.getUTCMonth()+1).padStart(2,'0');
+}
+
+function getDateKey(noTime) {
+  if (!noTime) return null;
+  return String(noTime.getUTCDate()).padStart(2,'0') + '.' + String(noTime.getUTCMonth()+1).padStart(2,'0');
 }
 
 const state={participants:[],results:{}};
@@ -3986,7 +4034,43 @@ function renderAll(){
     if(!byGroup[g])byGroup[g]=[];
     byGroup[g].push(actual);
   }
+
+  // Build "Dagens kamper" — today's matches in Norwegian time
+  const todayKey = getTodayKey();
+  const todaysMatches = apiMatches.filter(m => {
+    const nt = toNorwegianTime(m.date, m.time);
+    return nt && getDateKey(nt) === todayKey;
+  }).sort((a,b) => {
+    const ta = toNorwegianTime(a.date, a.time);
+    const tb = toNorwegianTime(b.date, b.time);
+    return (ta?ta.getTime():0) - (tb?tb.getTime():0);
+  });
+
   let mhtml='';
+  if(todaysMatches.length){
+    mhtml+='<div class="today-section"><div class="today-header">\ud83d\udd25 Dagens kamper</div>';
+    for(const actual of todaysMatches){
+      const nt = toNorwegianTime(actual.date, actual.time);
+      const ch = getChannel(actual.home, actual.away);
+      const hh = nt ? String(nt.getUTCHours()).padStart(2,'0') : '?';
+      const mi = nt ? String(nt.getUTCMinutes()).padStart(2,'0') : '?';
+      const played = actual.played;
+      const scoreText = played ? `${actual.homeGoals} \u2013 ${actual.awayGoals}` : `kl. ${hh}:${mi}`;
+      const scoreOrDash = played ? `<span class="today-score">${actual.homeGoals} \u2013 ${actual.awayGoals}</span>` : '<span class="today-score" style="color:var(--muted)">vs</span>';
+      const rightSide = played
+        ? (ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:'')
+        : `<span class="today-kickoff">kl. ${hh}:${mi}</span> ${ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:'<span class="channel-badge" style="background:var(--border);color:var(--muted)">TBA</span>'}`;
+      mhtml+=`<div class="today-row">
+        <span class="today-status">${played?'\u2705':'\ud83d\udd5b'}</span>
+        <span class="today-teams">${flag(actual.home)} ${actual.home} ${scoreOrDash} ${actual.away} ${flag(actual.away)}</span>
+        <span class="today-right">${rightSide}</span>
+      </div>`;
+    }
+    mhtml+='</div>';
+  } else {
+    mhtml+='<div class="today-section"><div class="today-header">\ud83d\udd25 Dagens kamper</div><div style="padding:.75rem 1rem;color:var(--muted);font-size:.85rem">Ingen kamper i dag.</div></div>';
+  }
+
   for(const[grp,list]of Object.entries(byGroup)){
     mhtml+=`<div class="match-group"><div class="group-header">\u26bd ${grp}</div>`;
     for(const actual of list){
@@ -4006,16 +4090,17 @@ function renderAll(){
         return`<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
       }).join('');
       const noTime = toNorwegianTime(actual.date, actual.time);
-      const channel = getChannel(noTime);
+      const channel = getChannel(actual.home, actual.away);
       const timeLabel = !played && noTime ? formatNoTime(noTime) : null;
       mhtml+=`<div class="match-row ${played?'played':''}" onclick="togglePanel('${pid}')">
         <div class="team-name home">${flag(actual.home)} ${actual.home}</div>
         <div class="score-box">${aH} \u2013 ${aA}</div>
         <div class="team-name">${actual.away} ${flag(actual.away)}</div>
       </div>`;
-      if(!played && timeLabel){
+      const metaTimeLabel = noTime ? formatNoTime(noTime) : null;
+      if(metaTimeLabel){
         mhtml+=`<div class="match-meta">
-          <span>\ud83d\udcc5 ${timeLabel}</span>
+          <span>\ud83d\udcc5 ${metaTimeLabel}</span>
           ${channel?`<span class="channel-badge channel-${channel.toLowerCase()}">${channel}</span>`:'<span style="color:var(--muted)">Kanal ikke klar</span>'}
         </div>`;
       }
@@ -4059,6 +4144,79 @@ function renderAll(){
     </div>`;
   }).join('');
   el('participants-content',phtml);
+
+  // STANDINGS / TABELL
+  const standings = {};
+  for(const match of apiMatches){
+    if(!match.played) continue;
+    const g = (match.group||'').replace('Group ','');
+    if(!g) continue;
+    if(!standings[g]) standings[g] = {};
+    const h = match.home, a = match.away;
+    for(const team of [h,a]){
+      if(!standings[g][team]) standings[g][team] = {team,P:0,W:0,D:0,L:0,GF:0,GA:0,GD:0,Pts:0};
+    }
+    standings[g][h].P++; standings[g][a].P++;
+    standings[g][h].GF += match.homeGoals; standings[g][h].GA += match.awayGoals;
+    standings[g][a].GF += match.awayGoals; standings[g][a].GA += match.homeGoals;
+    if(match.homeGoals > match.awayGoals){
+      standings[g][h].W++; standings[g][h].Pts+=3; standings[g][a].L++;
+    } else if(match.homeGoals < match.awayGoals){
+      standings[g][a].W++; standings[g][a].Pts+=3; standings[g][h].L++;
+    } else {
+      standings[g][h].D++; standings[g][a].D++;
+      standings[g][h].Pts++; standings[g][a].Pts++;
+    }
+  }
+  // Add teams with no matches played yet, from apiMatches metadata
+  const groupTeams = {};
+  for(const match of apiMatches){
+    const g = (match.group||'').replace('Group ','');
+    if(!g) continue;
+    if(!groupTeams[g]) groupTeams[g] = new Set();
+    groupTeams[g].add(match.home);
+    groupTeams[g].add(match.away);
+  }
+  for(const g of Object.keys(groupTeams)){
+    if(!standings[g]) standings[g] = {};
+    for(const team of groupTeams[g]){
+      if(!standings[g][team]) standings[g][team] = {team,P:0,W:0,D:0,L:0,GF:0,GA:0,GD:0,Pts:0};
+    }
+  }
+  for(const g of Object.keys(standings)){
+    for(const t of Object.values(standings[g])) t.GD = t.GF - t.GA;
+  }
+
+  let thtml = '';
+  const groupOrder = Object.keys(standings).sort();
+  for(const g of groupOrder){
+    const teams = Object.values(standings[g]).sort((a,b)=>{
+      if(b.Pts !== a.Pts) return b.Pts - a.Pts;
+      if(b.GD !== a.GD) return b.GD - a.GD;
+      return b.GF - a.GF;
+    });
+    thtml += `<div class="standings-group">
+      <div class="standings-header">Gruppe ${g}</div>
+      <table class="standings-table">
+        <thead><tr>
+          <th class="pos">#</th><th class="team-col">Lag</th>
+          <th>S</th><th>V</th><th>U</th><th>T</th>
+          <th>M+</th><th>M-</th><th>MF</th><th class="pts-col">P</th>
+        </tr></thead>
+        <tbody>`;
+    teams.forEach((t,i)=>{
+      const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
+      thtml += `<tr class="${qual}">
+        <td class="pos">${i+1}</td>
+        <td class="team-col">${flag(t.team)} ${t.team}</td>
+        <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
+        <td>${t.GF}</td><td>${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
+        <td class="pts-col">${t.Pts}</td>
+      </tr>`;
+    });
+    thtml += '</tbody></table></div>';
+  }
+  el('tabell-content', thtml || '<p style="color:var(--muted)">Ingen kampdata ennå.</p>');
 }
 
 // JS doesn't have Python's sum() — fix inline
