@@ -143,6 +143,20 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .combo-chart-card{margin-top:1.5rem}
 .combo-chart-wrap{margin-top:1rem}
 
+
+.combo-title{display:flex;align-items:center;justify-content:space-between}
+.expand-btn{background:transparent;border:1px solid var(--border);color:var(--cyan);width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:1rem;display:none;align-items:center;justify-content:center;line-height:1}
+.expand-btn:hover{background:rgba(0,180,216,.1);border-color:var(--cyan)}
+@media(max-width:700px){.expand-btn{display:inline-flex}}
+.chart-fs{position:fixed;inset:0;background:var(--navy);z-index:500;display:none;flex-direction:column;padding:1rem}
+.chart-fs.open{display:flex}
+.chart-fs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.chart-fs-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--white);letter-spacing:.04em}
+.chart-fs-close{background:transparent;border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:4px;cursor:pointer;font-size:1rem}
+.chart-fs-legend{margin-bottom:.5rem;max-height:30vh;overflow-y:auto}
+.chart-fs-body{flex:1;overflow:auto;background:var(--card);border-radius:6px;padding:.5rem;display:flex;align-items:center}
+.chart-fs-body svg{min-width:600px}
+
 .chart-tooltip{position:fixed;z-index:1000;background:var(--navy-l);border:1px solid var(--cyan);border-radius:6px;padding:.5rem .65rem;box-shadow:0 4px 20px rgba(0,0,0,.4);font-size:.78rem;pointer-events:none;display:none;min-width:140px}
 .chart-tooltip .tt-date{font-family:'Bebas Neue',sans-serif;color:var(--cyan);font-size:.85rem;letter-spacing:.04em;margin-bottom:.35rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
 .chart-tooltip .tt-row{display:flex;align-items:center;gap:.4rem;padding:.1rem 0}
@@ -181,11 +195,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .flag-img{display:inline-block;height:1em;width:auto;vertical-align:-0.15em;border-radius:1px;box-shadow:0 0 0 1px rgba(255,255,255,.07);margin-right:.15em}
 .flag-fallback{display:inline-block;margin-right:.15em}
 
-.long-name{display:inline}
-.short-name{display:none}
 @media(max-width:700px){
-  .long-name{display:none!important}
-  .short-name{display:inline!important}
   .standings-table .team-flag{display:none}
 }
 .standings-group{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden}
@@ -364,6 +374,16 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     </div>
   </section>
 </main>
+
+<div id="chart-fullscreen" class="chart-fs">
+  <div class="chart-fs-header">
+    <div class="chart-fs-title">&#128200; Poengutvikling</div>
+    <button class="chart-fs-close" onclick="closeChartFullscreen()" aria-label="Lukk">&#10005;</button>
+  </div>
+  <div id="chart-fs-legend" class="legend-bar chart-fs-legend"></div>
+  <div id="chart-fs-body" class="chart-fs-body"></div>
+</div>
+
 <script>
 const PREDICTIONS = [
   {
@@ -4005,6 +4025,7 @@ const SHORT_NAMES = {
   'USA':'USA','United States':'USA','Uruguay':'URU','Uzbekistan':'UZB',
 };
 function shortName(t){return SHORT_NAMES[t]||t}
+function isMobile(){return window.innerWidth<=700}
 function norm(n){return n?(TEAM_MAP[n]||n):''}
 function flag(t){
   const en = norm(t) || t;
@@ -4385,6 +4406,8 @@ function renderAll(){
     }
     return {name:p.name, color:colors[idx%colors.length], points:cumulPoints};
   });
+  window._chartSeries = series;
+  window._buildChart = buildChart;
 
   function buildChart(seriesList, width, height, opts) {
     opts = opts || {};
@@ -4469,7 +4492,7 @@ function renderAll(){
     if(existingCombo) existingCombo.remove();
     const legend = series.map(s =>
       '<button class="legend-item" data-name="'+s.name+'" style="--c:'+s.color+'"><span class="legend-swatch"></span><span class="legend-name">'+s.name+'</span></button>').join('');
-    const comboHtml = '<div class="card combo-chart-card"><div class="card-title">\ud83d\udcc8 Poengutvikling</div><div class="legend-bar">'+legend+'</div><div class="combo-chart-wrap" id="combo-chart">'+buildChart(series, 1000, 300, {})+'</div></div>';
+    const comboHtml = '<div class="card combo-chart-card"><div class="card-title combo-title">&#128200; Poengutvikling<button class="expand-btn" onclick="openChartFullscreen()" aria-label="Utvid">&#10530;</button></div><div class="legend-bar">'+legend+'</div><div class="combo-chart-wrap" id="combo-chart">'+buildChart(series, 1000, 300, {})+'</div></div>';
     const tmp = document.createElement('div');
     tmp.innerHTML = comboHtml;
     participantsSection.appendChild(tmp.firstElementChild);
@@ -4555,7 +4578,7 @@ function renderAll(){
       const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
       thtml += `<tr class="${qual}">
         <td class="pos">${i+1}</td>
-        <td class="team-col"><span class="team-flag">${flag(t.team)}</span><span class="long-name"> ${t.team}</span><span class="short-name">${shortName(t.team)}</span></td>
+        <td class="team-col">${isMobile()?'':`<span class="team-flag">${flag(t.team)}</span> `}${isMobile()?shortName(t.team):t.team}</td>
         <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
         <td class="mobile-hide">${t.GF}</td><td class="mobile-hide">${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
         <td class="pts-col">${t.Pts}</td>
@@ -4613,7 +4636,95 @@ function attachHoverHandlers(){
   });
 }
 
+
+let chartFsHidden = {};
+function openChartFullscreen(){
+  const fs = document.getElementById('chart-fullscreen');
+  const legendSrc = document.querySelector('.combo-chart-card .legend-bar');
+  const fsLegend = document.getElementById('chart-fs-legend');
+  if(legendSrc && fsLegend){
+    fsLegend.innerHTML = legendSrc.innerHTML;
+    fsLegend.querySelectorAll('.legend-item').forEach(btn => {
+      const name = btn.dataset.name;
+      if(chartFsHidden[name]) btn.classList.add('off');
+      btn.addEventListener('click', () => {
+        chartFsHidden[name] = !chartFsHidden[name];
+        btn.classList.toggle('off');
+        renderFsChart();
+      });
+    });
+  }
+  fs.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderFsChart();
+}
+function renderFsChart(){
+  const body = document.getElementById('chart-fs-body');
+  if(!body || !window._chartSeries) return;
+  body.innerHTML = '<div id="combo-chart-fs">' + window._buildChart(window._chartSeries, 1200, 500, {hidden:chartFsHidden}) + '</div>';
+  attachHoverHandlersFor('combo-chart-fs');
+}
+function closeChartFullscreen(){
+  document.getElementById('chart-fullscreen').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function attachHoverHandlersFor(containerId){
+  const chartContainer = document.getElementById(containerId);
+  if(!chartContainer) return;
+  let tooltip = document.getElementById('chart-tooltip');
+  if(!tooltip){
+    tooltip = document.createElement('div');
+    tooltip.id = 'chart-tooltip';
+    tooltip.className = 'chart-tooltip';
+    document.body.appendChild(tooltip);
+  }
+  const hoverLine = chartContainer.querySelector('.hover-line');
+  const zones = chartContainer.querySelectorAll('.hover-zone');
+  zones.forEach(zone => {
+    zone.addEventListener('mouseenter', () => {
+      const info = JSON.parse(decodeURIComponent(zone.dataset.info));
+      const x = parseFloat(zone.dataset.x);
+      if(hoverLine){ hoverLine.setAttribute('x1', x); hoverLine.setAttribute('x2', x); hoverLine.setAttribute('opacity','0.6'); }
+      const parts = info.date.split('-');
+      const dateLabel = parts[2]+'.'+parts[1]+'.';
+      const rows = info.values.map(v => '<div class="tt-row"><span class="tt-swatch" style="background:'+v.c+'"></span><span class="tt-name">'+v.n+'</span><span class="tt-val">'+v.v+'</span></div>').join('');
+      tooltip.innerHTML = '<div class="tt-date">'+dateLabel+'</div>'+rows;
+      tooltip.style.display = 'block';
+    });
+    zone.addEventListener('mousemove', e => {
+      const x = e.clientX + 12, y = e.clientY + 12;
+      const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      tooltip.style.left = (x + w > vw ? e.clientX - w - 12 : x) + 'px';
+      tooltip.style.top  = (y + h > vh ? e.clientY - h - 12 : y) + 'px';
+    });
+    // Touch support for mobile
+    zone.addEventListener('touchstart', e => {
+      const info = JSON.parse(decodeURIComponent(zone.dataset.info));
+      const x = parseFloat(zone.dataset.x);
+      if(hoverLine){ hoverLine.setAttribute('x1', x); hoverLine.setAttribute('x2', x); hoverLine.setAttribute('opacity','0.6'); }
+      const parts = info.date.split('-');
+      const dateLabel = parts[2]+'.'+parts[1]+'.';
+      const rows = info.values.map(v => '<div class="tt-row"><span class="tt-swatch" style="background:'+v.c+'"></span><span class="tt-name">'+v.n+'</span><span class="tt-val">'+v.v+'</span></div>').join('');
+      tooltip.innerHTML = '<div class="tt-date">'+dateLabel+'</div>'+rows;
+      tooltip.style.display = 'block';
+      const t = e.touches[0];
+      tooltip.style.left = Math.min(t.clientX + 12, window.innerWidth - tooltip.offsetWidth - 12) + 'px';
+      tooltip.style.top  = Math.max(t.clientY - tooltip.offsetHeight - 12, 12) + 'px';
+    }, {passive:true});
+    zone.addEventListener('mouseleave', () => { tooltip.style.display='none'; if(hoverLine) hoverLine.setAttribute('opacity','0'); });
+  });
+}
+
 boot();
+window.addEventListener('resize', (() => {
+  let t;
+  return () => {
+    clearTimeout(t);
+    t = setTimeout(() => { if(state.participants && state.participants.length) renderAll(); }, 300);
+  };
+})());
 </script>
 </body>
 </html>
