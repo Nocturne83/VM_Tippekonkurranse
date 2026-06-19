@@ -102,6 +102,65 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .points-table tr{border-bottom:1px solid var(--border)}
 .points-table td{padding:.65rem .75rem;font-size:.9rem}
 .points-table td:last-child{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--cyan);width:3rem}
+
+
+.group-pill{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,180,216,.15);color:var(--cyan);font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.04em;padding:.05rem .4rem;border-radius:3px;margin-right:.3rem;min-width:1.2rem;flex-shrink:0}
+.champ-row{display:grid;grid-template-columns:minmax(180px,auto) 1fr;align-items:center;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.champ-row:last-child{border-bottom:none}
+.champ-team{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.95rem}
+.champ-flag{font-size:1.1rem}
+.champ-count{background:var(--cyan);color:var(--navy);font-family:'Bebas Neue',sans-serif;font-size:.85rem;font-weight:700;padding:.05rem .45rem;border-radius:10px;min-width:1.4rem;text-align:center;letter-spacing:.02em}
+.champ-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.champ-chip{background:var(--navy-l);border:1px solid var(--border);color:var(--text);font-size:.78rem;padding:.2rem .6rem;border-radius:12px;white-space:nowrap}
+.mobile-only{display:none}
+@media(max-width:700px){
+  .mobile-only{display:inline}
+  .hero p{font-size:.85rem}
+  .champ-row{grid-template-columns:1fr;gap:.4rem;padding:.55rem 0}
+  .champ-team{font-size:.88rem}
+  .champ-chip{font-size:.72rem;padding:.15rem .5rem}
+  .status-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.4rem;font-size:.7rem;padding:.5rem .65rem;text-align:center}
+  .status-bar>span{display:block}
+  .status-bar>span:first-child{text-align:left}
+  .status-bar>span:nth-child(2){text-align:center;font-weight:600}
+  .status-bar>span:last-child{text-align:right}
+  .standings-group{margin-bottom:.75rem}
+  .standings-header{font-size:.95rem;padding:.5rem .75rem}
+  .standings-table{table-layout:auto}
+  .standings-table col.col-pos{width:1.8rem}
+  .standings-table col.col-gd{width:2.2rem}
+  .standings-table col.col-pts{width:2rem}
+  .standings-table th,.standings-table td{padding:.3rem .15rem;font-size:.7rem}
+  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:visible}
+  .standings-table td.pts-col{font-size:.88rem}
+  }
+
+@media(max-width:700px){
+  .mobile-hide{display:none}
+}
+
+.mini-chart-wrap{margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.combo-chart-card{margin-top:1.5rem}
+.combo-chart-wrap{margin-top:1rem}
+
+.chart-tooltip{position:fixed;z-index:1000;background:var(--navy-l);border:1px solid var(--cyan);border-radius:6px;padding:.5rem .65rem;box-shadow:0 4px 20px rgba(0,0,0,.4);font-size:.78rem;pointer-events:none;display:none;min-width:140px}
+.chart-tooltip .tt-date{font-family:'Bebas Neue',sans-serif;color:var(--cyan);font-size:.85rem;letter-spacing:.04em;margin-bottom:.35rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+.chart-tooltip .tt-row{display:flex;align-items:center;gap:.4rem;padding:.1rem 0}
+.chart-tooltip .tt-swatch{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-tooltip .tt-name{flex:1;color:var(--text)}
+.chart-tooltip .tt-val{font-family:'Bebas Neue',sans-serif;color:var(--white);letter-spacing:.04em}
+.hover-zone{cursor:crosshair}
+
+.legend-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.legend-item{display:inline-flex;align-items:center;gap:.4rem;background:var(--navy-l);border:1px solid var(--border);color:var(--text);font-size:.8rem;font-weight:500;padding:.3rem .6rem;border-radius:14px;cursor:pointer;transition:opacity .15s}
+.legend-item:hover{border-color:var(--cyan-d)}
+.legend-item.off{opacity:.35;text-decoration:line-through}
+.legend-swatch{width:10px;height:10px;border-radius:50%;background:var(--c);flex-shrink:0}
+@media(max-width:700px){
+  .mini-chart-wrap{display:none}
+  .legend-item{font-size:.72rem;padding:.25rem .5rem}
+  .legend-name{font-size:.72rem}
+}
 .prec-row{display:grid;grid-template-columns:7rem 1fr 3rem 3rem;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border)}
 .prec-row:last-child{border-bottom:none}
 .prec-name{display:flex;align-items:center;gap:.4rem;font-size:.92rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -116,6 +175,18 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .prec-name{font-size:.8rem}
   .prec-pct{font-size:.98rem}
   .prec-frac{font-size:.7rem}
+}
+/* default: show long name, hide short */
+
+.flag-img{display:inline-block;height:1em;width:auto;vertical-align:-0.15em;border-radius:1px;box-shadow:0 0 0 1px rgba(255,255,255,.07);margin-right:.15em}
+.flag-fallback{display:inline-block;margin-right:.15em}
+
+.long-name{display:inline}
+.short-name{display:none}
+@media(max-width:700px){
+  .long-name{display:none!important}
+  .short-name{display:inline!important}
+  .standings-table .team-flag{display:none}
 }
 .standings-group{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden}
 .standings-header{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--cyan);padding:.65rem 1rem;border-bottom:1px solid var(--border);letter-spacing:.04em}
@@ -136,10 +207,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .standings-table tr.qual{background:rgba(0,180,216,.04)}
 .standings-table tr.qual td:first-child{border-left:3px solid var(--cyan)}
 .standings-table tr.maybe td:first-child{border-left:3px solid rgba(244,196,0,.5)}
-@media(max-width:700px){
-  .standings-table th,.standings-table td{padding:.35rem .25rem;font-size:.75rem}
-  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem}
-}
+
 .loading{display:flex;align-items:center;justify-content:center;gap:.75rem;padding:3rem;color:var(--muted)}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -186,7 +254,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .match-teams{order:1;width:100%;justify-content:center;font-size:.82rem;gap:.4rem}
   .team-name{font-size:.82rem;max-width:38%}
   
-  .match-meta-inline{order:2;width:100%;justify-content:flex-end;font-size:.72rem;margin-left:0;margin-top:.2rem;padding-top:.35rem;border-top:1px solid var(--border)}
+  .match-meta-inline{order:2;width:100%;justify-content:center;font-size:.72rem;margin-left:0;margin-top:.2rem;padding-top:.35rem;border-top:1px solid var(--border)}
   
   .score-box{font-size:1.1rem}
   .pred-grid{grid-template-columns:repeat(2,1fr)}
@@ -242,7 +310,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     <div class="hero">
       <div class="flags">&#127482;&#127480; &#127474;&#127485; &#127464;&#127462;</div>
       <h1>VM <em>2026</em></h1>
-      <p>Tippekonkurransen &middot; FIFA World Cup &middot; USA / Mexico / Canada</p>
+      <p>Tippekonkurransen &middot; FIFA World Cup<br class="mobile-only"> &middot; USA / Mexico / Canada</p>
     </div>
     <div id="status-bar" class="status-bar"><span><span class="dot"></span>Henter data...</span><span id="countdown-text"></span><span></span></div>
     <div class="card">
@@ -3902,8 +3970,48 @@ const FLAGS = {
   'Scotland':'\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc73\udb40\udc63\udb40\udc74\udb40\udc7f',
   'England':'\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f',
 };
+const COUNTRY_CODES = {
+  'Mexico':'mx','South Africa':'za','South Korea':'kr','Czech Republic':'cz',
+  'Canada':'ca','Bosnia & Herzegovina':'ba','Qatar':'qa','Switzerland':'ch',
+  'Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct',
+  'USA':'us','United States':'us','Paraguay':'py','Australia':'au','Turkey':'tr',
+  'Germany':'de','Curaçao':'cw','Ivory Coast':'ci','Ecuador':'ec',
+  'Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn',
+  'Belgium':'be','Egypt':'eg','Iran':'ir','New Zealand':'nz',
+  'Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy',
+  'France':'fr','Senegal':'sn','Iraq':'iq','Norway':'no',
+  'Argentina':'ar','Algeria':'dz','Austria':'at','Jordan':'jo',
+  'Portugal':'pt','DR Congo':'cd','Uzbekistan':'uz','Colombia':'co',
+  'England':'gb-eng','Croatia':'hr','Ghana':'gh','Panama':'pa',
+};
+
+const SHORT_NAMES = {
+  'Argentina':'ARG','Algeria':'ALG','Austria':'AUT','Australia':'AUS',
+  'Belgium':'BEL','Bosnia & Herzegovina':'BIH','Brazil':'BRA',
+  'Canada':'CAN','Cape Verde':'CPV','Colombia':'COL','Croatia':'CRO','Curaçao':'CUW','Czech Republic':'CZE',
+  'DR Congo':'COD',
+  'Ecuador':'ECU','Egypt':'EGY','England':'ENG',
+  'France':'FRA',
+  'Germany':'GER','Ghana':'GHA',
+  'Haiti':'HAI',
+  'Iran':'IRN','Iraq':'IRQ','Ivory Coast':'CIV',
+  'Japan':'JPN','Jordan':'JOR',
+  'Mexico':'MEX','Morocco':'MAR',
+  'Netherlands':'NED','New Zealand':'NZL','Norway':'NOR',
+  'Panama':'PAN','Paraguay':'PAR','Portugal':'POR',
+  'Qatar':'QAT',
+  'Saudi Arabia':'KSA','Scotland':'SCO','Senegal':'SEN','South Africa':'RSA','South Korea':'KOR','Spain':'ESP','Sweden':'SWE','Switzerland':'SUI',
+  'Tunisia':'TUN','Turkey':'TUR',
+  'USA':'USA','United States':'USA','Uruguay':'URU','Uzbekistan':'UZB',
+};
+function shortName(t){return SHORT_NAMES[t]||t}
 function norm(n){return n?(TEAM_MAP[n]||n):''}
-function flag(t){return FLAGS[norm(t)]||FLAGS[t]||'\ud83c\udff3\ufe0f'}
+function flag(t){
+  const en = norm(t) || t;
+  const code = COUNTRY_CODES[en];
+  if(!code) return '<span class="flag-fallback">\ud83c\udff3\ufe0f</span>';
+  return `<img src="https://flagcdn.com/w20/${code}.png" srcset="https://flagcdn.com/w40/${code}.png 2x" class="flag-img" alt="">`;
+}
 function getRes(h,a){return h>a?'H':h<a?'B':'U'}
 function el(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
 
@@ -4084,10 +4192,24 @@ function renderAll(){
   }).join('');
   el('precision-content', playedMatches ? precRows : '<p style="color:var(--muted);font-size:.85rem">Ingen spilte kamper ennå.</p>');
 
-  const champs=state.participants.filter(p=>p.knockout&&p.knockout.champion)
-    .map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
-      <span style="color:var(--muted);font-size:.9rem">${p.name}</span>
-      <span style="font-weight:600">${flag(p.knockout.champion)} ${p.knockout.champion}</span>
+  const byTeam = {};
+  for(const p of state.participants){
+    const t = p.knockout && p.knockout.champion;
+    if(!t) continue;
+    if(!byTeam[t]) byTeam[t] = [];
+    byTeam[t].push(p.name);
+  }
+  const sortedTeams = Object.entries(byTeam).sort((a,b)=>b[1].length-a[1].length);
+  const champs = sortedTeams.map(([team,names]) => `
+    <div class="champ-row">
+      <div class="champ-team">
+        <span class="champ-flag">${flag(team)}</span>
+        <span class="champ-name">${team}</span>
+        <span class="champ-count">${names.length}</span>
+      </div>
+      <div class="champ-chips">
+        ${names.map(n=>`<span class="champ-chip">${n}</span>`).join('')}
+      </div>
     </div>`).join('');
   el('champion-picks',champs||'<p style="color:var(--muted);font-size:.9rem">Ingen data.</p>');
 
@@ -4141,8 +4263,10 @@ function renderAll(){
         return `<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
       }).join('');
 
+      const groupLetter = (actual.group||'').replace('Group ','');
+      const groupBadge = groupLetter ? `<span class="group-pill">${groupLetter}</span>` : '';
       mhtml+=`<div class="today-row" onclick="togglePanel('${todayPanelId}')">
-        <span class="today-teams">${flag(actual.home)} ${actual.home} ${scoreOrDash} ${actual.away} ${flag(actual.away)}</span>
+        <span class="today-teams">${groupBadge}${flag(actual.home)} ${actual.home} ${scoreOrDash} ${actual.away} ${flag(actual.away)}</span>
         <span class="today-right">${rightSide}</span>
       </div>
       <div id="${todayPanelId}" class="predictions-panel today-panel">
@@ -4233,6 +4357,136 @@ function renderAll(){
   }).join('');
   el('participants-content',phtml);
 
+  // ─── POENGUTVIKLING ─────────────────────────────────────────────────
+  const playedSorted = Object.values(state.results)
+    .filter(r => r.played && r.date)
+    .sort((a,b) => a.date.localeCompare(b.date));
+  const dateSet = [...new Set(playedSorted.map(r => r.date))].sort();
+  const startDate = '2026-06-11';
+  const allDates = dateSet.length === 0 ? [startDate] : (dateSet[0] !== startDate ? [startDate, ...dateSet] : dateSet);
+
+  const colors = ['#00b4d8','#f4c400','#2dc653','#e05050','#a855f7','#f97316','#ec4899','#84cc16','#06b6d4','#fbbf24'];
+  const series = state.participants.map((p, idx) => {
+    const pointsByDate = {};
+    for(const date of allDates) pointsByDate[date] = 0;
+    for(const match of playedSorted){
+      const pred = getPred(p, match.home, match.away);
+      if(!pred) continue;
+      let dp = 0;
+      if(pred.hg===match.homeGoals && pred.ag===match.awayGoals) dp += POINTS.exactScore;
+      if(getRes(pred.hg,pred.ag)===getRes(match.homeGoals,match.awayGoals)) dp += POINTS.correctResult;
+      pointsByDate[match.date] = (pointsByDate[match.date]||0) + dp;
+    }
+    let cumul = 0;
+    const cumulPoints = {};
+    for(const date of allDates){
+      cumul += pointsByDate[date]||0;
+      cumulPoints[date] = cumul;
+    }
+    return {name:p.name, color:colors[idx%colors.length], points:cumulPoints};
+  });
+
+  function buildChart(seriesList, width, height, opts) {
+    opts = opts || {};
+    const padding = {top:opts.compact?15:20, right:opts.compact?10:15, bottom:opts.compact?20:25, left:opts.compact?25:30};
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+    let maxY = 0;
+    for(const s of seriesList){
+      if(opts.hidden && opts.hidden[s.name]) continue;
+      for(const v of Object.values(s.points)) if(v>maxY) maxY=v;
+    }
+    maxY = Math.max(5, Math.ceil(maxY/5)*5);
+    const xStep = allDates.length > 1 ? chartW/(allDates.length-1) : 0;
+    const xAt = i => padding.left + i*xStep;
+    const yAt = v => padding.top + chartH - (v/maxY)*chartH;
+    let grid = '';
+    const yTicks = 5;
+    for(let i=0; i<=yTicks; i++){
+      const v = Math.round(maxY*i/yTicks);
+      const y = yAt(v);
+      grid += '<line x1="'+padding.left+'" y1="'+y+'" x2="'+(width-padding.right)+'" y2="'+y+'" stroke="#1a2e4a" stroke-width="1"/>';
+      grid += '<text x="'+(padding.left-4)+'" y="'+(y+3)+'" text-anchor="end" fill="#6b8cae" font-size="'+(opts.compact?9:7)+'">'+v+'</text>';
+    }
+    let xLabels = '';
+    const labelEvery = opts.compact ? Math.max(1, Math.ceil(allDates.length/4)) : Math.max(1, Math.ceil(allDates.length/8));
+    allDates.forEach((d, i) => {
+      if(i % labelEvery !== 0 && i !== allDates.length-1) return;
+      const x = xAt(i);
+      const parts = d.split('-');
+      const label = parts[2]+'.'+parts[1];
+      xLabels += '<text x="'+x+'" y="'+(height-padding.bottom+13)+'" text-anchor="middle" fill="#6b8cae" font-size="'+(opts.compact?9:7)+'">'+label+'</text>';
+    });
+    let lines = '';
+    let dots = '';
+    for(const s of seriesList){
+      if(opts.hidden && opts.hidden[s.name]) continue;
+      const pts = allDates.map((d,i) => xAt(i)+','+yAt(s.points[d]||0)).join(' ');
+      lines += '<polyline points="'+pts+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+      if(!opts.compact){
+        allDates.forEach((d,i) => {
+          dots += '<circle cx="'+xAt(i)+'" cy="'+yAt(s.points[d]||0)+'" r="2.5" fill="'+s.color+'"/>';
+        });
+      }
+    }
+    // Add invisible hover targets per date for tooltip detection
+    let hoverTargets = '';
+    if(!opts.compact){
+      const colW = xStep || width;
+      allDates.forEach((d,i) => {
+        const x = xAt(i);
+        const valuesJson = seriesList.filter(s => !(opts.hidden && opts.hidden[s.name]))
+          .map(s => ({n:s.name, c:s.color, v:s.points[d]||0}))
+          .sort((a,b) => b.v - a.v);
+        const dataAttr = encodeURIComponent(JSON.stringify({date:d, values:valuesJson}));
+        hoverTargets += '<rect x="'+(x - colW/2)+'" y="'+padding.top+'" width="'+colW+'" height="'+chartH+'" fill="transparent" class="hover-zone" data-info="'+dataAttr+'" data-x="'+x+'"/>';
+      });
+      hoverTargets += '<line class="hover-line" x1="0" y1="'+padding.top+'" x2="0" y2="'+(padding.top+chartH)+'" stroke="var(--cyan)" stroke-width="1" stroke-dasharray="3,3" opacity="0" pointer-events="none"/>';
+    }
+    return '<svg viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto">'+grid+xLabels+lines+dots+hoverTargets+'</svg>';
+  }
+
+  const hasData = Object.values(state.results).some(r=>r.played);
+  if(hasData){
+    // Inject mini-chart into each participant card
+    const cards = document.querySelectorAll('.participant-card');
+    cards.forEach(card => {
+      const nameEl = card.querySelector('.participant-name span');
+      if(!nameEl) return;
+      const sObj = series.find(s => s.name === nameEl.textContent);
+      if(!sObj) return;
+      const existing = card.querySelector('.mini-chart-wrap');
+      if(existing) existing.remove();
+      const wrap = document.createElement('div');
+      wrap.className = 'mini-chart-wrap';
+      wrap.innerHTML = buildChart([sObj], 800, 140, {compact:true});
+      card.appendChild(wrap);
+    });
+
+    // Combined chart at bottom of Deltakere section
+    const participantsSection = document.getElementById('deltakere');
+    const existingCombo = participantsSection.querySelector('.combo-chart-card');
+    if(existingCombo) existingCombo.remove();
+    const legend = series.map(s =>
+      '<button class="legend-item" data-name="'+s.name+'" style="--c:'+s.color+'"><span class="legend-swatch"></span><span class="legend-name">'+s.name+'</span></button>').join('');
+    const comboHtml = '<div class="card combo-chart-card"><div class="card-title">\ud83d\udcc8 Poengutvikling</div><div class="legend-bar">'+legend+'</div><div class="combo-chart-wrap" id="combo-chart">'+buildChart(series, 1000, 300, {})+'</div></div>';
+    const tmp = document.createElement('div');
+    tmp.innerHTML = comboHtml;
+    participantsSection.appendChild(tmp.firstElementChild);
+    const hidden = {};
+    participantsSection.querySelectorAll('.legend-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const n = btn.dataset.name;
+        hidden[n] = !hidden[n];
+        btn.classList.toggle('off', hidden[n]);
+        document.getElementById('combo-chart').innerHTML = buildChart(series, 1000, 300, {hidden:hidden});
+        attachHoverHandlers();
+      });
+    });
+    attachHoverHandlers();
+  }
+
+
   // STANDINGS / TABELL
   const standings = {};
   for(const match of apiMatches){
@@ -4289,21 +4543,21 @@ function renderAll(){
         <colgroup>
           <col class="col-pos"><col class="col-team">
           <col class="col-stat"><col class="col-stat"><col class="col-stat"><col class="col-stat">
-          <col class="col-stat"><col class="col-stat"><col class="col-gd"><col class="col-pts">
+          <col class="col-stat mobile-hide"><col class="col-stat mobile-hide"><col class="col-gd"><col class="col-pts">
         </colgroup>
         <thead><tr>
           <th class="pos">#</th><th class="team-col">Lag</th>
           <th>S</th><th>V</th><th>U</th><th>T</th>
-          <th>M+</th><th>M-</th><th>MF</th><th class="pts-col">P</th>
+          <th class="mobile-hide">M+</th><th class="mobile-hide">M-</th><th>MF</th><th class="pts-col">P</th>
         </tr></thead>
         <tbody>`;
     teams.forEach((t,i)=>{
       const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
       thtml += `<tr class="${qual}">
         <td class="pos">${i+1}</td>
-        <td class="team-col">${flag(t.team)} ${t.team}</td>
+        <td class="team-col"><span class="team-flag">${flag(t.team)}</span><span class="long-name"> ${t.team}</span><span class="short-name">${shortName(t.team)}</span></td>
         <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
-        <td>${t.GF}</td><td>${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
+        <td class="mobile-hide">${t.GF}</td><td class="mobile-hide">${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
         <td class="pts-col">${t.Pts}</td>
       </tr>`;
     });
@@ -4314,6 +4568,50 @@ function renderAll(){
 
 // JS doesn't have Python's sum() — fix inline
 function sum(n){return n}
+
+function attachHoverHandlers(){
+  const chartContainer = document.getElementById('combo-chart');
+  if(!chartContainer) return;
+  let tooltip = document.getElementById('chart-tooltip');
+  if(!tooltip){
+    tooltip = document.createElement('div');
+    tooltip.id = 'chart-tooltip';
+    tooltip.className = 'chart-tooltip';
+    document.body.appendChild(tooltip);
+  }
+  const hoverLine = chartContainer.querySelector('.hover-line');
+  const zones = chartContainer.querySelectorAll('.hover-zone');
+  zones.forEach(zone => {
+    zone.addEventListener('mouseenter', () => {
+      const info = JSON.parse(decodeURIComponent(zone.dataset.info));
+      const x = parseFloat(zone.dataset.x);
+      if(hoverLine){
+        hoverLine.setAttribute('x1', x);
+        hoverLine.setAttribute('x2', x);
+        hoverLine.setAttribute('opacity', '0.6');
+      }
+      const parts = info.date.split('-');
+      const dateLabel = parts[2]+'.'+parts[1]+'.';
+      const rows = info.values.map(v => '<div class="tt-row"><span class="tt-swatch" style="background:'+v.c+'"></span><span class="tt-name">'+v.n+'</span><span class="tt-val">'+v.v+'</span></div>').join('');
+      tooltip.innerHTML = '<div class="tt-date">'+dateLabel+'</div>'+rows;
+      tooltip.style.display = 'block';
+    });
+    zone.addEventListener('mousemove', e => {
+      const x = e.clientX + 12;
+      const y = e.clientY + 12;
+      const w = tooltip.offsetWidth;
+      const h = tooltip.offsetHeight;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      tooltip.style.left = (x + w > vw ? e.clientX - w - 12 : x) + 'px';
+      tooltip.style.top  = (y + h > vh ? e.clientY - h - 12 : y) + 'px';
+    });
+    zone.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+      if(hoverLine) hoverLine.setAttribute('opacity', '0');
+    });
+  });
+}
 
 boot();
 </script>
