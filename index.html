@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>VM 2026 · Tippekonkurransen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
@@ -119,11 +122,11 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .champ-row{grid-template-columns:1fr;gap:.4rem;padding:.55rem 0}
   .champ-team{font-size:.88rem}
   .champ-chip{font-size:.72rem;padding:.15rem .5rem}
-  .status-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.4rem;font-size:.7rem;padding:.5rem .65rem;text-align:center}
-  .status-bar>span{display:block}
-  .status-bar>span:first-child{text-align:left}
-  .status-bar>span:nth-child(2){text-align:center;font-weight:600}
-  .status-bar>span:last-child{text-align:right}
+  .status-bar{display:grid;grid-template-rows:auto auto;grid-template-columns:1fr 1fr;gap:.3rem .5rem;font-size:.72rem;padding:.6rem .85rem;text-align:left}
+  .status-bar>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .status-bar>span:nth-child(2){grid-row:1/3;grid-column:2;align-self:center;justify-self:end;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;font-weight:600;color:var(--cyan);letter-spacing:.04em;line-height:1.1;white-space:normal}
+  .status-bar>span:first-child{grid-row:1;grid-column:1}
+  .status-bar>span:last-child{grid-row:2;grid-column:1;color:var(--muted);font-size:.66rem}
   .standings-group{margin-bottom:.75rem}
   .standings-header{font-size:.95rem;padding:.5rem .75rem}
   .standings-table{table-layout:auto}
@@ -285,7 +288,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 <body>
 <header>
   <div class="header-inner">
-    <div class="logo">&#9917; VM <em>2026</em> &middot; Tippen</div>
+    <div class="logo" onclick="goToLeaderboard()" style="cursor:pointer">&#9917; VM <em>2026</em> &middot; Tippen</div>
     <nav class="desktop-nav">
       <button class="active" onclick="showSection('ledertavle',this)">&#127942; Ledertavle</button>
       <button onclick="showSection('kamper',this)">&#9917; Kamper</button>
@@ -4035,6 +4038,15 @@ function flag(t){
 }
 function getRes(h,a){return h>a?'H':h<a?'B':'U'}
 function el(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
+
+function goToLeaderboard(){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ledertavle').classList.add('active');
+  const firstBtn = document.querySelector('.desktop-nav button');
+  if(firstBtn) firstBtn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
 
 function toggleDrawer(){
   document.getElementById('drawer').classList.toggle('open');
