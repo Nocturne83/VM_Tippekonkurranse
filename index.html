@@ -134,7 +134,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .standings-table col.col-gd{width:2.2rem}
   .standings-table col.col-pts{width:2rem}
   .standings-table th,.standings-table td{padding:.3rem .15rem;font-size:.7rem}
-  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:visible;font-variant-ligatures:none;-webkit-font-feature-settings:"liga" 0,"clig" 0,"calt" 0;font-feature-settings:"liga" 0,"clig" 0,"calt" 0;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased;letter-spacing:.02em}
+  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:hidden}
   .standings-table td.pts-col{font-size:.88rem}
   }
 
@@ -246,7 +246,12 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .team-col .team-flag{display:inline}
 @media(max-width:700px){
   .team-col .team-flag,.team-col .team-full{display:none}
-  .team-col::after{content:attr(data-short);font-family:'Barlow',sans-serif;font-weight:500}
+  .team-col::after{content:attr(data-short);font-family:system-ui,-apple-system,sans-serif;font-weight:500}
+@media(max-width:700px){
+  .standings-table,.standings-table th,.standings-table td{font-family:system-ui,-apple-system,"Segoe UI",sans-serif!important}
+  .standings-table td.pts-col{font-family:'Bebas Neue',sans-serif!important}
+}
+
 }
 
 
