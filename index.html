@@ -242,16 +242,11 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .standings-table tr.maybe td:first-child{border-left:3px solid var(--gold)}
 
 
-.standings-table col.col-team-desktop{width:auto}
-.standings-table col.col-team-mobile{width:0}
+.team-full{display:inline}
+.team-col .team-flag{display:inline}
 @media(max-width:700px){
-  .standings-table col.col-team-desktop{width:0}
-  .standings-table col.col-team-mobile{width:auto}
-}
-.team-col-mobile{display:none}
-@media(max-width:700px){
-  .team-col-desktop{display:none}
-  .team-col-mobile{display:table-cell}
+  .team-col .team-flag,.team-col .team-full{display:none}
+  .team-col::after{content:attr(data-short);font-family:'Barlow',sans-serif;font-weight:500}
 }
 
 
@@ -4610,12 +4605,12 @@ function renderAll(){
       <div class="standings-header">Gruppe ${g}</div>
       <table class="standings-table">
         <colgroup>
-          <col class="col-pos"><col class="col-team col-team-desktop"><col class="col-team col-team-mobile">
+          <col class="col-pos"><col class="col-team">
           <col class="col-stat"><col class="col-stat"><col class="col-stat"><col class="col-stat">
           <col class="col-stat mobile-hide"><col class="col-stat mobile-hide"><col class="col-gd"><col class="col-pts">
         </colgroup>
         <thead><tr>
-          <th class="pos">#</th><th class="team-col team-col-desktop">Lag</th><th class="team-col team-col-mobile">Lag</th>
+          <th class="pos">#</th><th class="team-col">Lag</th>
           <th>S</th><th>V</th><th>U</th><th>T</th>
           <th class="mobile-hide">M+</th><th class="mobile-hide">M-</th><th>MF</th><th class="pts-col">P</th>
         </tr></thead>
@@ -4624,7 +4619,7 @@ function renderAll(){
       const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
       thtml += `<tr class="${qual}">
         <td class="pos">${i+1}</td>
-        <td class="team-col team-col-desktop"><span class="team-flag">${flag(t.team)}</span> ${t.team}</td><td class="team-col team-col-mobile">${shortName(t.team)}</td>
+        <td class="team-col" data-short="${shortName(t.team)}"><span class="team-flag">${flag(t.team)}</span> <span class="team-full">${t.team}</span></td>
         <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
         <td class="mobile-hide">${t.GF}</td><td class="mobile-hide">${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
         <td class="pts-col">${t.Pts}</td>
