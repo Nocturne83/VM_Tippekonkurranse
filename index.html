@@ -244,11 +244,11 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .standings-table tr.maybe td:first-child{border-left:3px solid var(--gold)}
 
 
-.team-full{display:inline}
-.team-col .team-flag{display:inline}
+.team-col .team-flag,.team-col .team-full{display:inline}
+.team-col .team-short{display:none}
 @media(max-width:700px){
-  .team-col .team-flag,.team-col .team-full{display:none}
-  .team-col::after{content:attr(data-short);font-family:system-ui,-apple-system,sans-serif;font-weight:500}
+  .team-col .team-flag,.team-col .team-full{display:none!important}
+  .team-col .team-short{display:inline!important;color:var(--text);font-weight:500}
 }
 @media(max-width:700px){
   .standings-table,.standings-table th,.standings-table td{font-family:system-ui,-apple-system,"Segoe UI",sans-serif!important}
@@ -4627,7 +4627,7 @@ function renderAll(){
       const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
       thtml += `<tr class="${qual}">
         <td class="pos">${i+1}</td>
-        <td class="team-col" data-short="${shortName(t.team)}"><span class="team-flag">${flag(t.team)}</span> <span class="team-full">${t.team}</span></td>
+        <td class="team-col"><span class="team-flag">${flag(t.team)}</span><span class="team-full"> ${t.team}</span><span class="team-short">${shortName(t.team)}</span></td>
         <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
         <td class="mobile-hide">${t.GF}</td><td class="mobile-hide">${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
         <td class="pts-col">${t.Pts}</td>
