@@ -134,7 +134,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .standings-table col.col-gd{width:2.2rem}
   .standings-table col.col-pts{width:2rem}
   .standings-table th,.standings-table td{padding:.3rem .15rem;font-size:.7rem}
-  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:visible}
+  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:visible;font-variant-ligatures:none;-webkit-font-feature-settings:"liga" 0,"clig" 0,"calt" 0;font-feature-settings:"liga" 0,"clig" 0,"calt" 0;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased;letter-spacing:.02em}
   .standings-table td.pts-col{font-size:.88rem}
   }
 
@@ -146,6 +146,26 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .combo-chart-card{margin-top:1.5rem}
 .combo-chart-wrap{margin-top:1rem}
 
+
+
+.upcoming-section{border-top:1px solid var(--border)}
+.upcoming-toggle{width:100%;background:var(--navy);border:none;color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:.65rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s}
+.upcoming-toggle:hover{background:rgba(0,180,216,.08)}
+.upcoming-arrow{font-size:.85rem;transition:transform .2s}
+.upcoming-panel{display:none;padding:.25rem 0 .5rem;background:var(--navy)}
+.upcoming-panel.open{display:block}
+.upcoming-panel.open ~ * .upcoming-arrow,.upcoming-toggle:has(+ .upcoming-panel.open) .upcoming-arrow{transform:rotate(180deg)}
+.upcoming-row{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;border-bottom:1px solid var(--border);font-size:.85rem;gap:.75rem}
+.upcoming-row:last-child{border-bottom:none}
+.upcoming-teams{display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;min-width:0}
+.upcoming-meta{display:flex;align-items:center;gap:.5rem;white-space:nowrap;color:var(--muted);font-size:.78rem;font-weight:600}
+.upcoming-time{color:var(--muted)}
+@media(max-width:700px){
+  .upcoming-toggle{font-size:.72rem;padding:.55rem .75rem}
+  .upcoming-row{flex-direction:column;align-items:flex-start;gap:.25rem;padding:.5rem .75rem;font-size:.78rem}
+  .upcoming-meta{margin-left:0}
+  .upcoming-teams{font-size:.78rem}
+}
 
 .combo-title{display:flex;align-items:center;justify-content:space-between}
 .expand-btn{background:transparent;border:1px solid var(--border);color:var(--cyan);width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:1rem;display:none;align-items:center;justify-content:center;line-height:1}
@@ -219,7 +239,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .standings-table tr.qual td.pos{color:var(--cyan)}
 .standings-table tr.qual{background:rgba(0,180,216,.04)}
 .standings-table tr.qual td:first-child{border-left:3px solid var(--cyan)}
-.standings-table tr.maybe td:first-child{border-left:3px solid rgba(244,196,0,.5)}
+.standings-table tr.maybe td:first-child{border-left:3px solid var(--gold)}
 
 .loading{display:flex;align-items:center;justify-content:center;gap:.75rem;padding:3rem;color:var(--muted)}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
@@ -4596,7 +4616,36 @@ function renderAll(){
         <td class="pts-col">${t.Pts}</td>
       </tr>`;
     });
-    thtml += '</tbody></table></div>';
+    thtml += '</tbody></table>';
+    // Upcoming matches expand button
+    const upcoming = apiMatches.filter(m => !m.played && (m.group||'').replace('Group ','') === g)
+      .sort((a,b)=>{
+        const ta = toNorwegianTime(a.date, a.time);
+        const tb = toNorwegianTime(b.date, b.time);
+        return (ta?ta.getTime():0) - (tb?tb.getTime():0);
+      });
+    if(upcoming.length){
+      const panelId = 'upcoming-' + g;
+      let rows = '';
+      for(const match of upcoming){
+        const nt = toNorwegianTime(match.date, match.time);
+        const ch = getChannel(match.home, match.away);
+        const timeLabel = nt ? formatNoTime(nt) : '';
+        const chBadge = ch ? `<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>` : '<span style="color:var(--muted);font-size:.7rem">TBA</span>';
+        rows += `<div class="upcoming-row">
+          <span class="upcoming-teams">${flag(match.home)} ${match.home} <span style="color:var(--muted);margin:0 .4rem">vs</span> ${match.away} ${flag(match.away)}</span>
+          <span class="upcoming-meta"><span class="upcoming-time">${timeLabel}</span>${chBadge}</span>
+        </div>`;
+      }
+      thtml += `<div class="upcoming-section">
+        <button class="upcoming-toggle" onclick="togglePanel('${panelId}')">
+          <span>\u26a0\ufe0f Kommende kamper Gruppe ${g} (${upcoming.length})</span>
+          <span class="upcoming-arrow">\u25be</span>
+        </button>
+        <div id="${panelId}" class="upcoming-panel">${rows}</div>
+      </div>`;
+    }
+    thtml += '</div>';
   }
   el('tabell-content', thtml || '<p style="color:var(--muted)">Ingen kampdata ennå.</p>');
 }
@@ -4728,6 +4777,62 @@ function attachHoverHandlersFor(containerId){
     zone.addEventListener('mouseleave', () => { tooltip.style.display='none'; if(hoverLine) hoverLine.setAttribute('opacity','0'); });
   });
 }
+
+
+
+// Swipe navigation on mobile
+const SECTIONS_ORDER = ['ledertavle', 'kamper', 'sluttspill', 'tabell', 'deltakere', 'poeng'];
+function navigateToSection(sectionId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(sectionId).classList.add('active');
+  // Sync nav active state
+  document.querySelectorAll('.desktop-nav button, .drawer-nav button').forEach(b => {
+    if (b.getAttribute('onclick')?.includes(`'${sectionId}'`)) b.classList.add('active');
+  });
+}
+function getCurrentSectionIndex() {
+  const active = document.querySelector('.section.active');
+  if (!active) return 0;
+  return SECTIONS_ORDER.indexOf(active.id);
+}
+function swipeToNext(dir) {
+  const cur = getCurrentSectionIndex();
+  if (cur < 0) return;
+  const next = cur + dir;
+  if (next < 0 || next >= SECTIONS_ORDER.length) return;
+  navigateToSection(SECTIONS_ORDER[next]);
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+
+let touchStartX = 0, touchStartY = 0, touchActive = false;
+document.addEventListener('touchstart', e => {
+  if (window.innerWidth > 700) return;
+  // Ignore swipes started on horizontally-scrollable elements
+  let el = e.target;
+  while (el && el !== document.body) {
+    const cs = window.getComputedStyle(el);
+    if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') {
+      if (el.scrollWidth > el.clientWidth) return;
+    }
+    el = el.parentElement;
+  }
+  if (document.getElementById('drawer')?.classList.contains('open')) return;
+  if (document.getElementById('chart-fullscreen')?.classList.contains('open')) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchActive = true;
+}, {passive: true});
+document.addEventListener('touchend', e => {
+  if (!touchActive) return;
+  touchActive = false;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) < 60) return;
+  if (Math.abs(dy) > Math.abs(dx) * 0.6) return;  // must be more horizontal than vertical
+  if (dx < 0) swipeToNext(1);   // swipe left → next
+  else        swipeToNext(-1);  // swipe right → previous
+}, {passive: true});
 
 boot();
 window.addEventListener('resize', (() => {
