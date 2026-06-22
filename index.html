@@ -129,13 +129,15 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .status-bar>span:last-child{grid-row:2;grid-column:1;color:var(--muted);font-size:.66rem}
   .standings-group{margin-bottom:.75rem}
   .standings-header{font-size:.95rem;padding:.5rem .75rem}
-  .standings-table{table-layout:auto}
-  .standings-table col.col-pos{width:1.8rem}
-  .standings-table col.col-gd{width:2.2rem}
-  .standings-table col.col-pts{width:2rem}
-  .standings-table th,.standings-table td{padding:.3rem .15rem;font-size:.7rem}
-  .standings-table th.team-col,.standings-table td.team-col{padding-left:.5rem;font-size:.78rem;white-space:nowrap;overflow:hidden}
-  .standings-table td.pts-col{font-size:.88rem}
+  .standings-table{table-layout:fixed;width:100%}
+  .standings-table col.col-pos{width:2rem}
+  .standings-table col.col-team{width:auto}
+  .standings-table col.col-stat{width:2rem}
+  .standings-table col.col-gd{width:2.4rem}
+  .standings-table col.col-pts{width:2.2rem}
+  .standings-table th,.standings-table td{padding:.4rem .15rem;font-size:.78rem;text-align:center;overflow:hidden;box-sizing:border-box}
+  .standings-table th.team-col,.standings-table td.team-col{padding-left:.4rem;padding-right:.4rem;text-align:left;overflow:hidden;white-space:nowrap}
+  .standings-table td.pts-col{font-size:1rem}
   }
 
 @media(max-width:700px){
