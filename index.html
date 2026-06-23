@@ -159,6 +159,18 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .upcoming-panel.open ~ * .upcoming-arrow,.upcoming-toggle:has(+ .upcoming-panel.open) .upcoming-arrow{transform:rotate(180deg)}
 .upcoming-row{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;border-bottom:1px solid var(--border);font-size:.85rem;gap:.75rem}
 .upcoming-row:last-child{border-bottom:none}
+.upcoming-preds{padding:.5rem 1rem .75rem;background:var(--card);border-bottom:1px solid var(--border)}
+.preds-toggle{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;padding:.45rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s}
+.preds-toggle:hover{color:var(--cyan);background:rgba(0,180,216,.04)}
+.upcoming-preds-panel{display:none;padding:.5rem 1rem .75rem;background:var(--card);border-bottom:1px solid var(--border)}
+.upcoming-preds-panel.open{display:block}
+
+.upcoming-preds:last-child{border-bottom:none}
+.prev-score{font-family:'Bebas Neue',sans-serif;color:var(--cyan);margin:0 .4rem;letter-spacing:.04em;font-size:1.05rem}
+@media(max-width:700px){
+  .upcoming-preds{padding:.4rem .75rem .6rem}
+}
+
 .upcoming-teams{display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;min-width:0}
 .upcoming-meta{display:flex;align-items:center;gap:.5rem;white-space:nowrap;color:var(--muted);font-size:.78rem;font-weight:600}
 .upcoming-time{color:var(--muted)}
@@ -218,7 +230,6 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 /* default: show long name, hide short */
 
 .flag-img{display:inline-block;height:1em;width:auto;vertical-align:-0.15em;border-radius:1px;box-shadow:0 0 0 1px rgba(255,255,255,.07);margin-right:.15em}
-.flag-fallback{display:inline-block;margin-right:.15em}
 
 @media(max-width:700px){
   .standings-table .team-flag{display:none}
@@ -242,21 +253,6 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .standings-table tr.qual{background:rgba(0,180,216,.04)}
 .standings-table tr.qual td:first-child{border-left:3px solid var(--cyan)}
 .standings-table tr.maybe td:first-child{border-left:3px solid var(--gold)}
-
-
-.team-col .team-flag,.team-col .team-full{display:inline}
-.team-col .team-short{display:none}
-@media(max-width:700px){
-  .team-col .team-flag,.team-col .team-full{display:none!important}
-  .team-col .team-short{display:inline!important;color:var(--text);font-weight:500}
-}
-@media(max-width:700px){
-  .standings-table,.standings-table th,.standings-table td{font-family:system-ui,-apple-system,"Segoe UI",sans-serif!important}
-  .standings-table td.pts-col{font-family:'Bebas Neue',sans-serif!important}
-}
-
-}
-
 
 .loading{display:flex;align-items:center;justify-content:center;gap:.75rem;padding:3rem;color:var(--muted)}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
@@ -4627,7 +4623,7 @@ function renderAll(){
       const qual = i < 2 ? 'qual' : i === 2 ? 'maybe' : '';
       thtml += `<tr class="${qual}">
         <td class="pos">${i+1}</td>
-        <td class="team-col"><span class="team-flag">${flag(t.team)}</span><span class="team-full"> ${t.team}</span><span class="team-short">${shortName(t.team)}</span></td>
+        <td class="team-col">${t.team}</td>
         <td>${t.P}</td><td>${t.W}</td><td>${t.D}</td><td>${t.L}</td>
         <td class="mobile-hide">${t.GF}</td><td class="mobile-hide">${t.GA}</td><td>${t.GD>=0?'+'+t.GD:t.GD}</td>
         <td class="pts-col">${t.Pts}</td>
@@ -4649,9 +4645,22 @@ function renderAll(){
         const ch = getChannel(match.home, match.away);
         const timeLabel = nt ? formatNoTime(nt) : '';
         const chBadge = ch ? `<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>` : '<span style="color:var(--muted);font-size:.7rem">TBA</span>';
+        const ucPredItems = state.participants.map(p => {
+          const pred = getPred(p, match.home, match.away);
+          if(!pred) return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
+          return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
+        }).join('');
+        const ucMatchId = 'uc-' + g + '-' + match.home.replace(/\s/g,'_') + '-' + match.away.replace(/\s/g,'_');
         rows += `<div class="upcoming-row">
           <span class="upcoming-teams">${flag(match.home)} ${match.home} <span style="color:var(--muted);margin:0 .4rem">vs</span> ${match.away} ${flag(match.away)}</span>
           <span class="upcoming-meta"><span class="upcoming-time">${timeLabel}</span>${chBadge}</span>
+        </div>
+        <button class="preds-toggle" onclick="togglePanel('${ucMatchId}')">
+          <span>\ud83c\udfaf Deltakertips</span>
+          <span class="upcoming-arrow">\u25be</span>
+        </button>
+        <div id="${ucMatchId}" class="upcoming-panel upcoming-preds-panel">
+          <div class="pred-grid">${ucPredItems}</div>
         </div>`;
       }
       thtml += `<div class="upcoming-section">
@@ -4660,6 +4669,50 @@ function renderAll(){
           <span class="upcoming-arrow">\u25be</span>
         </button>
         <div id="${panelId}" class="upcoming-panel">${rows}</div>
+      </div>`;
+    }
+
+    // Previously played matches in this group
+    const previous = apiMatches.filter(m => m.played && (m.group||'').replace('Group ','') === g)
+      .sort((a,b)=>{
+        const ta = toNorwegianTime(a.date, a.time);
+        const tb = toNorwegianTime(b.date, b.time);
+        return (ta?ta.getTime():0) - (tb?tb.getTime():0);
+      });
+    if(previous.length){
+      const prevPanelId = 'previous-' + g;
+      let prevRows = '';
+      for(const match of previous){
+        const nt = toNorwegianTime(match.date, match.time);
+        const timeLabel = nt ? formatNoTime(nt) : '';
+        const prevPredItems = state.participants.map(p => {
+          const pred = getPred(p, match.home, match.away);
+          if(!pred) return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
+          const isExact = pred.hg===match.homeGoals && pred.ag===match.awayGoals;
+          const isCor = getRes(pred.hg,pred.ag)===getRes(match.homeGoals,match.awayGoals);
+          const cls = isExact?'exact':isCor?'result':'wrong';
+          return `<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
+        }).join('');
+        const prevMatchId = 'prev-' + g + '-' + match.home.replace(/\s/g,'_') + '-' + match.away.replace(/\s/g,'_');
+        prevRows += `<div class="upcoming-row">
+          <span class="upcoming-teams">${flag(match.home)} ${match.home} <span class="prev-score">${match.homeGoals}\u2013${match.awayGoals}</span> ${match.away} ${flag(match.away)}</span>
+          <span class="upcoming-meta"><span class="upcoming-time">${timeLabel}</span></span>
+        </div>
+        <button class="preds-toggle" onclick="togglePanel('${prevMatchId}')">
+          <span>\ud83c\udfaf Deltakertips</span>
+          <span class="upcoming-arrow">\u25be</span>
+        </button>
+        <div id="${prevMatchId}" class="upcoming-panel upcoming-preds-panel">
+          <div class="pred-grid">${prevPredItems}</div>
+          <div style="margin-top:.5rem;font-size:.68rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;<span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;<span style="opacity:.4">\u25a0</span> Feil</div>
+        </div>`;
+      }
+      thtml += `<div class="upcoming-section">
+        <button class="upcoming-toggle" onclick="togglePanel('${prevPanelId}')">
+          <span>\u2705 Tidligere kamper Gruppe ${g} (${previous.length})</span>
+          <span class="upcoming-arrow">\u25be</span>
+        </button>
+        <div id="${prevPanelId}" class="upcoming-panel">${prevRows}</div>
       </div>`;
     }
     thtml += '</div>';
