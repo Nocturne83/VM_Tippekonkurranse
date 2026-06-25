@@ -51,6 +51,19 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .match-row{display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.65rem 1rem;margin-bottom:.4rem;cursor:pointer;transition:border-color .15s;flex-wrap:wrap}
 .match-row:hover{border-color:var(--cyan-d)}
 .match-row.played{border-left:3px solid var(--cyan)}
+.group-header-btn{width:100%;background:transparent;border:none;color:var(--cyan);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;padding:.5rem 0;margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid var(--border);transition:color .15s}
+.match-subgroup{margin-bottom:.5rem}
+.group-header-btn-sub{font-size:.95rem;padding-left:.75rem;border-left:2px solid var(--border)}
+.group-header-btn-top{font-size:1.25rem}
+
+.group-header-btn:hover{color:var(--white)}
+.match-group-panel{display:none;padding-top:.75rem}
+.match-group-panel.open{display:block}
+.ko-winner{color:var(--white);font-weight:600}
+.match-row.played .team-name.home.ko-winner::after,.match-row.played .team-name.away.ko-winner::before{content:"";display:inline-block;width:0;height:0}
+.match-row.played:has(.team-name.home.ko-winner){border-left:3px solid #2dc653}
+.match-row.played:has(.team-name.away.ko-winner){border-left:none;border-right:3px solid #2dc653}
+
 .match-teams{display:flex;align-items:center;justify-content:flex-start;gap:.6rem;flex:1;min-width:0;flex-wrap:nowrap}
 .team-name{font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .team-name.home{text-align:right}
@@ -68,6 +81,10 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .today-row:hover{background:rgba(0,180,216,.05)}
 .today-teams{display:flex;align-items:center;gap:.4rem;min-width:0;flex-wrap:nowrap;overflow:hidden}
 .today-score{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--cyan);margin:0 .4rem;letter-spacing:.04em;white-space:nowrap}
+.live-pulse{color:#ff4444!important;font-weight:700;animation:livePulse 1.4s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.5}}
+.today-row-live{border:1px solid rgba(255,68,68,.4);background:rgba(255,68,68,.04)}
+
 .today-right{display:flex;align-items:center;gap:.5rem;white-space:nowrap;justify-content:flex-end}
 .today-kickoff{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:var(--white);letter-spacing:.03em}
 .today-panel{margin:.4rem 1rem .5rem;border-radius:6px}
@@ -289,10 +306,9 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   .hero .flags{font-size:1.2rem}
 
   /* LEADERBOARD */
-  .leaderboard th:nth-child(3),
-  .leaderboard td:nth-child(3),
   .leaderboard th:nth-child(4),
   .leaderboard td:nth-child(4){display:none}
+  .leaderboard th:nth-child(3),.leaderboard td:nth-child(3){font-size:.78rem}
   .pts-big{font-size:1.2rem}
 
   /* MATCHES */
@@ -4188,7 +4204,8 @@ async function boot(){
         homeGoals:played?m.score.ft[0]:null,
         awayGoals:played?m.score.ft[1]:null,
         played,group:m.group,
-        date:m.date,time:m.time
+        date:m.date,time:m.time,
+        round:m.round,num:m.num
       };
     }
     state.results=results;
@@ -4279,8 +4296,9 @@ function renderAll(){
     </div>`).join('');
   el('champion-picks',champs||'<p style="color:var(--muted);font-size:.9rem">Ingen data.</p>');
 
-  // Matches — iterate API results in order
-  const apiMatches=Object.values(state.results).filter(r=>!r.home.match(/^[12W3L]/));
+  // Matches — group stage and knockout stage
+  const apiMatches=Object.values(state.results).filter(r=>r.group && !r.home.match(/^[12W3L]/));
+  const koMatches=Object.values(state.results).filter(r=>!r.group);
   const byGroup={};
   for(const actual of apiMatches){
     const g='Gruppe '+(actual.group||'?').replace('Group ','');
@@ -4288,20 +4306,21 @@ function renderAll(){
     byGroup[g].push(actual);
   }
 
-  // Build "Dagens kamper" — today's matches in Norwegian time
-  const todayKey = getTodayKey();
+  // Build "Kommende kamper" — next 4 unplayed matches (any date)
+  const nowMs = Date.now();
   const todaysMatches = apiMatches.filter(m => {
+    if(m.played) return false;
     const nt = toNorwegianTime(m.date, m.time);
-    return nt && getDateKey(nt) === todayKey;
+    return nt && nt.getTime() > nowMs - 2*60*60*1000; // include matches that may have just started
   }).sort((a,b) => {
     const ta = toNorwegianTime(a.date, a.time);
     const tb = toNorwegianTime(b.date, b.time);
     return (ta?ta.getTime():0) - (tb?tb.getTime():0);
-  });
+  }).slice(0, 4);
 
   let mhtml='';
   if(todaysMatches.length){
-    mhtml+='<div class="today-section"><div class="today-header">\ud83d\udd25 Dagens kamper</div>';
+    mhtml+='<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper</div>';
     for(const actual of todaysMatches){
       const nt = toNorwegianTime(actual.date, actual.time);
       const ch = getChannel(actual.home, actual.away);
@@ -4309,7 +4328,12 @@ function renderAll(){
       const mi = nt ? String(nt.getUTCMinutes()).padStart(2,'0') : '?';
       const played = actual.played;
       const scoreText = played ? `${actual.homeGoals} \u2013 ${actual.awayGoals}` : `kl. ${hh}:${mi}`;
-      const scoreOrDash = played ? `<span class="today-score">${actual.homeGoals} \u2013 ${actual.awayGoals}</span>` : '<span class="today-score" style="color:var(--muted)">vs</span>';
+      const isLive = !played && nt && (nowMs >= nt.getTime()) && (nowMs <= nt.getTime() + 150*60*1000);
+      const scoreOrDash = played
+        ? `<span class="today-score">${actual.homeGoals} \u2013 ${actual.awayGoals}</span>`
+        : isLive
+          ? '<span class="today-score live-pulse">\ud83d\udd34 LIVE</span>'
+          : '<span class="today-score" style="color:var(--muted)">vs</span>';
       const todayPid = 'pred-' + actual.home.replace(/\s/g,'_') + '_' + actual.away.replace(/\s/g,'_');
       const todayPanelId = 'today-' + todayPid;
       const rightSide = played
@@ -4331,7 +4355,7 @@ function renderAll(){
 
       const groupLetter = (actual.group||'').replace('Group ','');
       const groupBadge = groupLetter ? `<span class="group-pill">${groupLetter}</span>` : '';
-      mhtml+=`<div class="today-row" onclick="togglePanel('${todayPanelId}')">
+      mhtml+=`<div class="today-row ${isLive?'today-row-live':''}" onclick="togglePanel('${todayPanelId}')">
         <span class="today-teams">${groupBadge}${flag(actual.home)} ${actual.home} ${scoreOrDash} ${actual.away} ${flag(actual.away)}</span>
         <span class="today-right">${rightSide}</span>
       </div>
@@ -4347,11 +4371,23 @@ function renderAll(){
     }
     mhtml+='</div>';
   } else {
-    mhtml+='<div class="today-section"><div class="today-header">\ud83d\udd25 Dagens kamper</div><div style="padding:.75rem 1rem;color:var(--muted);font-size:.85rem">Ingen kamper i dag.</div></div>';
+    mhtml+='<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper</div><div style="padding:.75rem 1rem;color:var(--muted);font-size:.85rem">Ingen flere kamper.</div></div>';
   }
 
+  const groupStagePanelId = 'group-stage-all';
+  mhtml += `<div class="match-group"><button class="group-header-btn group-header-btn-top" onclick="togglePanel('${groupStagePanelId}')">
+    <span>\u26bd Gruppespill</span>
+    <span class="upcoming-arrow">\u25be</span>
+  </button>
+  <div id="${groupStagePanelId}" class="match-group-panel">`;
   for(const[grp,list]of Object.entries(byGroup)){
-    mhtml+=`<div class="match-group"><div class="group-header">\u26bd ${grp}</div>`;
+    const grpId = 'matchgroup-' + grp.replace(/\s/g,'_');
+    const playedCount = list.filter(m=>m.played).length;
+    mhtml+=`<div class="match-subgroup"><button class="group-header-btn group-header-btn-sub" onclick="togglePanel('${grpId}')">
+      <span>${grp} <span style="color:var(--muted);font-weight:400;font-size:.8em">(${playedCount}/${list.length} spilt)</span></span>
+      <span class="upcoming-arrow">\u25be</span>
+    </button>
+    <div id="${grpId}" class="match-group-panel">`;
     for(const actual of list){
       const played=actual.played;
       const aH=played?actual.homeGoals:'\u2013';
@@ -4389,8 +4425,180 @@ function renderAll(){
         <div style="margin-top:.75rem;font-size:.72rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;<span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;<span style="opacity:.4">\u25a0</span> Feil</div>
       </div>`;
     }
-    mhtml+='</div>';
+    mhtml+='</div></div>';
   }
+  mhtml += '</div></div>';
+
+  // ─── KNOCKOUT STAGE ────────────────────────────────────────────────
+  const koRounds = [
+    {label:'16-delsfinale (Round of 32)', round:'Round of 32'},
+    {label:'8-delsfinale (Round of 16)', round:'Round of 16'},
+    {label:'Kvartfinale', round:'Quarter-final'},
+    {label:'Semifinale', round:'Semi-final'},
+    {label:'Bronsefinale', round:'Match for third place'},
+    {label:'Finale', round:'Final'},
+  ];
+
+  // Compute group standings to resolve placeholders like 1A, 2B, 3rd places
+  const groupRanks = {}; // {A: [{team,pts,gd,gf}, ...], B: ...}
+  const groupComplete = {}; // {A: true/false}
+  for(const match of apiMatches){
+    const g = (match.group||'').replace('Group ','');
+    if(!g) continue;
+    if(!groupRanks[g]) groupRanks[g] = {};
+    for(const team of [match.home, match.away]){
+      if(!groupRanks[g][team]) groupRanks[g][team] = {team,Pts:0,GF:0,GA:0,GD:0,P:0};
+    }
+    if(!match.played) continue;
+    groupRanks[g][match.home].P++; groupRanks[g][match.away].P++;
+    groupRanks[g][match.home].GF += match.homeGoals;
+    groupRanks[g][match.home].GA += match.awayGoals;
+    groupRanks[g][match.away].GF += match.awayGoals;
+    groupRanks[g][match.away].GA += match.homeGoals;
+    if(match.homeGoals > match.awayGoals){
+      groupRanks[g][match.home].Pts += 3;
+    } else if(match.homeGoals < match.awayGoals){
+      groupRanks[g][match.away].Pts += 3;
+    } else {
+      groupRanks[g][match.home].Pts++; groupRanks[g][match.away].Pts++;
+    }
+  }
+  // Sort + complete check
+  const groupSorted = {};
+  for(const g of Object.keys(groupRanks)){
+    for(const t of Object.values(groupRanks[g])) t.GD = t.GF - t.GA;
+    groupSorted[g] = Object.values(groupRanks[g]).sort((a,b) => {
+      if(b.Pts !== a.Pts) return b.Pts - a.Pts;
+      if(b.GD !== a.GD) return b.GD - a.GD;
+      return b.GF - a.GF;
+    });
+    // Group is complete if all 6 matches played (4 teams, 6 matches per group)
+    const matchesInGroup = apiMatches.filter(m => (m.group||'').replace('Group ','') === g);
+    groupComplete[g] = matchesInGroup.length > 0 && matchesInGroup.every(m => m.played);
+  }
+
+  // Best third place computation across given groups
+  function bestThirdAmong(groups){
+    const candidates = [];
+    for(const g of groups){
+      const ranked = groupSorted[g];
+      if(!ranked || ranked.length < 3) continue;
+      if(!groupComplete[g]) return null; // can't determine until group is done
+      candidates.push({...ranked[2], group:g});
+    }
+    if(candidates.length === 0) return null;
+    candidates.sort((a,b) => {
+      if(b.Pts !== a.Pts) return b.Pts - a.Pts;
+      if(b.GD !== a.GD) return b.GD - a.GD;
+      return b.GF - a.GF;
+    });
+    return candidates[0].team;
+  }
+
+  // Resolve placeholder to team name (or display string)
+  // Returns {name, locked} where locked=true means it's the actual final team
+  function resolveTeam(code){
+    if(!code) return {name:'TBA', locked:false};
+    // Already a real team name
+    if(!/^([12W3L]|3[A-L])/.test(code) && code.length > 2) return {name:code, locked:true};
+
+    // Pattern: 1A, 2B, etc.
+    let m = code.match(/^([12])([A-L])$/);
+    if(m){
+      const pos = parseInt(m[1])-1;
+      const g = m[2];
+      const ranked = groupSorted[g];
+      if(!ranked || !ranked[pos]) return {name:code, locked:false};
+      if(groupComplete[g]) return {name:ranked[pos].team, locked:true};
+      // Show top candidates: if tied or close, show top 2
+      return {name:ranked[pos].team + ' (foreløpig)', locked:false};
+    }
+
+    // Pattern: 3A/B/C/D/F (best third among these groups)
+    m = code.match(/^3([A-L/]+)$/);
+    if(m){
+      const groups = m[1].split('/');
+      const best = bestThirdAmong(groups);
+      if(best) return {name:best, locked:true};
+      return {name:'Beste 3\'er av ' + groups.join('/'), locked:false};
+    }
+
+    // Pattern: W74, L101 — winner/loser of match
+    m = code.match(/^([WL])(\d+)$/);
+    if(m){
+      const wl = m[1], num = parseInt(m[2]);
+      // Find that match in koMatches
+      const refMatch = koMatches.find(km => km.num === num);
+      if(refMatch && refMatch.played){
+        const isWinner = wl === 'W';
+        const homeWon = refMatch.homeGoals > refMatch.awayGoals;
+        const team = (isWinner === homeWon) ? refMatch.home : refMatch.away;
+        return {name:team, locked:true};
+      }
+      return {name:(wl==='W'?'Vinner ':'Taper ')+'kamp '+num, locked:false};
+    }
+
+    return {name:code, locked:false};
+  }
+
+  // Render each KO round
+  for(const {label, round} of koRounds){
+    const matches = koMatches.filter(km => km.round === round)
+      .sort((a,b) => (a.num||0) - (b.num||0));
+    if(matches.length === 0) continue;
+    const roundId = 'koround-' + round.replace(/\s/g,'_');
+    const playedCount = matches.filter(m=>m.played).length;
+    mhtml += `<div class="match-group"><button class="group-header-btn" onclick="togglePanel('${roundId}')">
+      <span>\ud83c\udfc6 ${label} <span style="color:var(--muted);font-weight:400;font-size:.8em">(${playedCount}/${matches.length} spilt)</span></span>
+      <span class="upcoming-arrow">\u25be</span>
+    </button>
+    <div id="${roundId}" class="match-group-panel">`;
+    for(const match of matches){
+      const homeResolved = resolveTeam(match.home);
+      const awayResolved = resolveTeam(match.away);
+      const homeTeam = homeResolved.name;
+      const awayTeam = awayResolved.name;
+      const played = match.played;
+      const aH = played ? match.homeGoals : '\u2013';
+      const aA = played ? match.awayGoals : '\u2013';
+      const pid = 'pred-ko-' + (match.num||0);
+      const noTime = toNorwegianTime(match.date, match.time);
+      const metaTimeLabel = noTime ? formatNoTime(noTime) : null;
+      const channel = homeResolved.locked && awayResolved.locked ? getChannel(homeTeam, awayTeam) : null;
+      const scoreDisplay = played ? `${aH} \u2013 ${aA}` : '<span style="color:var(--muted)">vs</span>';
+
+      // Determine winner side for green border (only for played KO matches)
+      let homeWinClass = '', awayWinClass = '';
+      if(played){
+        if(match.homeGoals > match.awayGoals) homeWinClass = 'ko-winner';
+        else if(match.awayGoals > match.homeGoals) awayWinClass = 'ko-winner';
+      }
+
+      // Build prediction items (only if both teams locked)
+      let predItems = '';
+      if(homeResolved.locked && awayResolved.locked){
+        predItems = state.participants.map(p => {
+          // For KO matches, we don't have predictions in our system (predictions are group stage only)
+          // Instead, show who picked each team to win this round
+          return '';
+        }).join('');
+      }
+
+      mhtml += `<div class="match-row ${played?'played':''}">
+        <div class="match-teams">
+          <span class="team-name home ${homeWinClass}">${homeResolved.locked?flag(homeTeam):''} ${homeTeam}</span>
+          <span class="score-box">${scoreDisplay}</span>
+          <span class="team-name away ${awayWinClass}">${awayTeam} ${awayResolved.locked?flag(awayTeam):''}</span>
+        </div>
+        <div class="match-meta-inline">
+          ${metaTimeLabel?`<span class="match-time">${metaTimeLabel}</span>`:''}
+          ${channel?`<span class="channel-badge channel-${channel.toLowerCase()}">${channel}</span>`:'<span style="color:var(--muted);font-size:.7rem">TBA</span>'}
+        </div>
+      </div>`;
+    }
+    mhtml += '</div></div>';
+  }
+
   el('matches-content',mhtml||'<p style="color:var(--muted)">Ingen kampdata.</p>');
 
   const rounds=[{key:'r32',label:'16-delsfin.'},{key:'r16',label:'8-delsfin.'},{key:'qf',label:'Kvartfinale'},{key:'sf',label:'Semifinale'}];
