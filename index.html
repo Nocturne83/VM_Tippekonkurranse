@@ -4235,6 +4235,24 @@ function getPred(p, apiHome, apiAway) {
   return null;
 }
 
+// Compute group standings from a set of match results (real or predicted).
+// matchList: array of {home, away, homeGoals, awayGoals} (goals must be numbers, no nulls)
+function computeGroupTable(matchList){
+  const teams = {};
+  for(const m of matchList){
+    for(const t of [m.home, m.away]){
+      if(!teams[t]) teams[t] = {team:t,Pts:0,GF:0,GA:0,GD:0};
+    }
+    teams[m.home].GF += m.homeGoals; teams[m.home].GA += m.awayGoals;
+    teams[m.away].GF += m.awayGoals; teams[m.away].GA += m.homeGoals;
+    if(m.homeGoals > m.awayGoals) teams[m.home].Pts += 3;
+    else if(m.homeGoals < m.awayGoals) teams[m.away].Pts += 3;
+    else { teams[m.home].Pts++; teams[m.away].Pts++; }
+  }
+  for(const t of Object.values(teams)) t.GD = t.GF - t.GA;
+  return Object.values(teams).sort((a,b) => b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
+}
+
 async function boot(){
   try{
     el('status-bar','<span><span class="dot"></span>Henter kampresultater...</span><span></span>');
@@ -4255,6 +4273,44 @@ async function boot(){
     }
     state.results=results;
 
+    // ─── Actual group standings (for group-position scoring) ───────────
+    const apiMatchesForScoring = Object.values(results).filter(r=>r.group && !r.home.match(/^[12W3L]/));
+    const groupsByLetter = {};
+    for(const m of apiMatchesForScoring){
+      const g = (m.group||'').replace('Group ','');
+      if(!g) continue;
+      if(!groupsByLetter[g]) groupsByLetter[g] = [];
+      groupsByLetter[g].push(m);
+    }
+    const groupActualOrder = {};   // {A: [team1,team2,team3,team4]}
+    const groupComplete = {};      // {A: true/false}
+    for(const g of Object.keys(groupsByLetter)){
+      const matches = groupsByLetter[g];
+      groupComplete[g] = matches.length === 6 && matches.every(m=>m.played);
+      if(groupComplete[g]){
+        const played = matches.map(m=>({home:m.home,away:m.away,homeGoals:m.homeGoals,awayGoals:m.awayGoals}));
+        groupActualOrder[g] = computeGroupTable(played).map(t=>t.team);
+      }
+    }
+    const allGroupsComplete = Object.keys(groupsByLetter).length===12 && Object.values(groupComplete).every(Boolean);
+
+    // ─── Actual Round-of-32 qualifiers (top 2 per group + 8 best thirds) ───
+    let qualifiedR32 = null;
+    if(allGroupsComplete){
+      qualifiedR32 = new Set();
+      const thirds = [];
+      for(const g of Object.keys(groupActualOrder)){
+        const order = groupActualOrder[g];
+        qualifiedR32.add(order[0]); qualifiedR32.add(order[1]);
+        const matches = groupsByLetter[g].map(m=>({home:m.home,away:m.away,homeGoals:m.homeGoals,awayGoals:m.awayGoals}));
+        const table = computeGroupTable(matches);
+        thirds.push(table[2]);
+      }
+      thirds.sort((a,b)=> b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
+      thirds.slice(0,8).forEach(t=>qualifiedR32.add(t.team));
+    }
+    state.tourney = {groupActualOrder, groupComplete, qualifiedR32, allGroupsComplete};
+
     const participants=PREDICTIONS.map(p=>{
       let total=0,exact=0,result=0;
       for(const actual of Object.values(results)){
@@ -4264,7 +4320,37 @@ async function boot(){
         if(pred.hg===actual.homeGoals&&pred.ag===actual.awayGoals){total+=POINTS.exactScore;exact++;}
         if(getRes(pred.hg,pred.ag)===getRes(actual.homeGoals,actual.awayGoals)){total+=POINTS.correctResult;result++;}
       }
-      return{...p,total,exact,result};
+
+      // ─── Group position points (2p) + 100% order bonus (10p) ───────
+      let groupPosPts = 0, groupBonusGroups = 0;
+      for(const g of Object.keys(groupActualOrder)){
+        const matchesInGroup = groupsByLetter[g];
+        const predMatches = [];
+        for(const m of matchesInGroup){
+          const pred = getPred(p, m.home, m.away);
+          if(!pred) { predMatches.length = 0; break; }
+          predMatches.push({home:m.home, away:m.away, homeGoals:pred.hg, awayGoals:pred.ag});
+        }
+        if(predMatches.length !== 6) continue;
+        const predictedOrder = computeGroupTable(predMatches).map(t=>t.team);
+        const actualOrder = groupActualOrder[g];
+        let correctPositions = 0;
+        for(let i=0;i<4;i++){
+          if(predictedOrder[i] === actualOrder[i]){ correctPositions++; total += POINTS.groupPosition; }
+        }
+        groupPosPts += correctPositions * POINTS.groupPosition;
+        if(correctPositions === 4){ total += POINTS.groupBonus; groupBonusGroups++; }
+      }
+
+      // ─── Round of 32 advancement (4p per qualified team) ────────────
+      let r32Pts = 0;
+      if(qualifiedR32 && p.knockout && p.knockout.r32){
+        for(const team of p.knockout.r32){
+          if(qualifiedR32.has(team)){ total += POINTS.r32; r32Pts += POINTS.r32; }
+        }
+      }
+
+      return{...p,total,exact,result,groupPosPts,groupBonusGroups,r32Pts};
     });
     participants.sort((a,b)=>b.total-a.total);
     state.participants=participants;
