@@ -45,6 +45,20 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .pts-big{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--cyan);letter-spacing:.03em}
 .badge{display:inline-block;font-size:.7rem;font-family:'Barlow Condensed',sans-serif;font-weight:600;padding:.15rem .4rem;border-radius:3px;background:var(--border);color:var(--muted)}
 .badge.exact{background:rgba(244,196,0,.15);color:var(--gold)}
+.exact-toggle{border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;display:inline-flex;align-items:center;gap:.2rem;transition:background .15s}
+.exact-toggle:hover{background:rgba(244,196,0,.25)}
+.exact-arrow{font-size:.65rem;transition:transform .2s;display:inline-block}
+.exact-toggle.open .exact-arrow{transform:rotate(180deg)}
+.exact-detail-row td{border-bottom:1px solid var(--border)}
+.leaderboard tr.exact-detail-row:last-child td{border-bottom:none}
+.exact-detail-panel{display:none;background:var(--navy-l);padding:0}
+.exact-detail-panel.open{display:block;padding:.5rem .75rem}
+.exact-match-row{padding:.4rem .5rem;font-size:.85rem;border-bottom:1px solid var(--border)}
+.exact-match-row:last-child{border-bottom:none}
+.exact-match-score{font-family:'Bebas Neue',sans-serif;color:var(--gold);margin:0 .4rem;letter-spacing:.04em}
+@media(max-width:700px){
+  .exact-match-row{font-size:.76rem;padding:.35rem .4rem}
+}
 .badge.result{background:rgba(0,180,216,.12);color:var(--cyan)}
 .match-group{margin-bottom:2rem}
 .group-header{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--cyan);padding:.4rem 0;margin-bottom:.75rem;border-bottom:1px solid var(--border)}
@@ -112,7 +126,38 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .bracket-match{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;width:160px}
 .bracket-team{padding:.4rem .6rem;font-size:.8rem;display:flex;align-items:center;justify-content:space-between}
 .bracket-team.winner{background:rgba(0,180,216,.15);color:var(--white);font-weight:600}
-.participant-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.participant-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem;cursor:pointer;transition:border-color .15s}
+.participant-card:hover{border-color:var(--cyan-d)}
+.participant-card.expanded{border-color:var(--cyan)}
+.participant-expand-hint{display:flex;align-items:center;justify-content:center;gap:.3rem;margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.participant-card.expanded .participant-expand-hint .upcoming-arrow{transform:rotate(180deg)}
+.participant-detail-panel{display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);cursor:default}
+.participant-detail-panel.open{display:block}
+.match-pill-legend{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:.75rem;font-size:.72rem;color:var(--muted)}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:.3rem;vertical-align:middle}
+.legend-dot-gold{background:var(--gold)}
+.legend-dot-neutral{background:var(--text)}
+.legend-dot-miss{background:var(--muted);opacity:.5}
+.match-pill-list{display:flex;flex-direction:column;gap:.4rem;max-height:420px;overflow-y:auto;padding-right:.25rem}
+.match-pill{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--navy-l);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;font-size:.85rem}
+.match-pill-teams{display:flex;align-items:center;gap:.3rem;flex:1;min-width:0;flex-wrap:wrap}
+.match-pill-score{font-family:'Bebas Neue',sans-serif;color:var(--white);margin:0 .3rem;letter-spacing:.03em}
+.match-pill-pred{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.match-pill-pts{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:var(--cyan);white-space:nowrap;min-width:2.6rem;text-align:right}
+.match-pill-gold-hit{border-color:var(--gold);background:rgba(244,196,0,.08)}
+.match-pill-gold-hit .match-pill-pts{color:var(--gold)}
+.match-pill-neutral-hit{border-color:var(--border)}
+.match-pill-miss{opacity:.45}
+.match-pill-unplayed{opacity:.6;border-style:dashed}
+.match-pill-unplayed .match-pill-pts{color:var(--muted)}
+.participant-mini-chart-wrap{margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.participant-mini-chart-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;font-weight:600}
+@media(max-width:700px){
+  .match-pill{font-size:.76rem;padding:.45rem .6rem;flex-wrap:wrap}
+  .match-pill-pred{font-size:.68rem}
+  .match-pill-pts{font-size:.85rem;min-width:2.2rem}
+  .match-pill-list{max-height:340px}
+}
 .participant-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;color:var(--white);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
 .participant-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem}
 .stat-box{background:var(--navy-l);border-radius:5px;padding:.6rem .75rem;text-align:center}
@@ -4237,13 +4282,34 @@ function renderAll(){
   el('status-bar','<span><span class="dot"></span>'+played+' av '+total+' kamper spilt</span><span style="font-weight:600;color:var(--cyan)">'+getCountdown()+'</span><span>Oppdatert: '+now+'</span>');
 
   const medals=['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
-  const rows=state.participants.map((p,i)=>`
+  const rows=state.participants.map((p,i)=>{
+    // Find exact-score matches for this participant
+    const exactMatches = [];
+    for(const actual of Object.values(state.results)){
+      if(!actual.played || actual.home.match(/^[12W3L]/)) continue;
+      const pred = getPred(p, actual.home, actual.away);
+      if(!pred) continue;
+      if(pred.hg===actual.homeGoals && pred.ag===actual.awayGoals){
+        exactMatches.push({home:actual.home, away:actual.away, hg:actual.homeGoals, ag:actual.awayGoals});
+      }
+    }
+    const exactPanelId = 'exact-'+p.name.replace(/\s/g,'_');
+    const exactRows = exactMatches.length
+      ? exactMatches.map(m=>`<div class="exact-match-row"><span>${flag(m.home)} ${m.home} <span class="exact-match-score">${m.hg}\u2013${m.ag}</span> ${m.away} ${flag(m.away)}</span></div>`).join('')
+      : '<div class="exact-match-row" style="color:var(--muted)">Ingen eksakte treff enn\u00e5</div>';
+    return `
     <tr>
       <td><span class="rank ${i<3?'rank-'+(i+1):''}">${medals[i]||i+1}</span> ${p.name}</td>
       <td><span class="pts-big">${p.total}</span></td>
-      <td><span class="badge exact">${p.exact} eksakt</span></td>
+      <td>
+        <button class="badge exact exact-toggle" onclick="event.stopPropagation();togglePanel('${exactPanelId}');this.classList.toggle('open')">${p.exact} eksakt <span class="exact-arrow">\u25be</span></button>
+      </td>
       <td><span class="badge result">${p.result} H/U/B</span></td>
-    </tr>`).join('');
+    </tr>
+    <tr class="exact-detail-row"><td colspan="4" style="padding:0">
+      <div id="${exactPanelId}" class="exact-detail-panel">${exactRows}</div>
+    </td></tr>`;
+  }).join('');
   el('leaderboard-content',`<table class="leaderboard"><thead><tr><th>Deltaker</th><th>Poeng</th><th>Eksakt</th><th>Resultat</th></tr></thead><tbody>${rows}</tbody></table>`);
 
   // Presisjonsindeks: %  = (exact + result) / playedMatches per participant
@@ -4619,13 +4685,55 @@ function renderAll(){
 
   const phtml=state.participants.map(p=>{
     const champ=(p.knockout&&p.knockout.champion)||'\u2013';
-    return`<div class="participant-card">
+    const detailId = 'pdetail-'+p.name.replace(/\s/g,'_');
+
+    // Build full list of group-stage matches this participant predicted, with points
+    const matchDetails = [];
+    for(const actual of Object.values(state.results)){
+      if(actual.home.match(/^[12W3L]/)) continue; // skip KO placeholders
+      if(!actual.group) continue; // group stage only
+      const pred = getPred(p, actual.home, actual.away);
+      if(!pred) continue;
+      let pts = 0, cls = 'pending';
+      if(actual.played){
+        const isExact = pred.hg===actual.homeGoals && pred.ag===actual.awayGoals;
+        const isCor = getRes(pred.hg,pred.ag)===getRes(actual.homeGoals,actual.awayGoals);
+        if(isExact){ pts = POINTS.exactScore + POINTS.correctResult; cls = 'gold-hit'; }
+        else if(isCor){ pts = POINTS.correctResult; cls = 'neutral-hit'; }
+        else { pts = 0; cls = 'miss'; }
+      } else {
+        cls = 'unplayed';
+      }
+      matchDetails.push({...actual, pred, pts, cls});
+    }
+    // Sort by date
+    matchDetails.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+    const matchPills = matchDetails.map(m => {
+      return `<div class="match-pill match-pill-${m.cls}">
+        <span class="match-pill-teams">${flag(m.home)} ${m.home} <span class="match-pill-score">${m.played?m.homeGoals+'\u2013'+m.awayGoals:'vs'}</span> ${m.away} ${flag(m.away)}</span>
+        <span class="match-pill-pred">Tippet ${m.pred.hg}\u2013${m.pred.ag}</span>
+        <span class="match-pill-pts">${m.played? (m.pts>0?'+'+m.pts:'0')+' p' : '\u2013'}</span>
+      </div>`;
+    }).join('');
+
+    return`<div class="participant-card" onclick="togglePanel('${detailId}');this.classList.toggle('expanded')">
       <div class="participant-name"><span>${p.name}</span><span class="pts-big">${p.total} poeng</span></div>
       <div class="participant-stats">
         <div class="stat-box"><span class="stat-val">${p.exact}</span><span class="stat-lbl">Eksakt score</span></div>
         <div class="stat-box"><span class="stat-val">${p.result}</span><span class="stat-lbl">Riktig H/U/B</span></div>
         <div class="stat-box"><span class="stat-val">${sum(Object.keys(p.groupMatches||{}).length)}</span><span class="stat-lbl">Kamper tippet</span></div>
         <div class="stat-box"><span class="stat-val" style="font-size:1rem">${flag(champ)} ${champ}</span><span class="stat-lbl">Mester-tips</span></div>
+      </div>
+      <div class="participant-expand-hint"><span>Se alle tips</span><span class="upcoming-arrow">\u25be</span></div>
+      <div id="${detailId}" class="participant-detail-panel" onclick="event.stopPropagation()">
+        <div class="match-pill-legend">
+          <span><span class="legend-dot legend-dot-gold"></span>H/U/B + eksakt</span>
+          <span><span class="legend-dot legend-dot-neutral"></span>Riktig H/U/B</span>
+          <span><span class="legend-dot legend-dot-miss"></span>Feil</span>
+        </div>
+        <div class="match-pill-list">${matchPills || '<p style="color:var(--muted);font-size:.85rem">Ingen tips funnet.</p>'}</div>
+        <div class="participant-mini-chart-wrap"></div>
       </div>
     </div>`;
   }).join('');
@@ -4724,19 +4832,16 @@ function renderAll(){
 
   const hasData = Object.values(state.results).some(r=>r.played);
   if(hasData){
-    // Inject mini-chart into each participant card
+    // Inject mini-chart into each participant's detail panel (hidden until card expanded)
     const cards = document.querySelectorAll('.participant-card');
     cards.forEach(card => {
       const nameEl = card.querySelector('.participant-name span');
       if(!nameEl) return;
       const sObj = series.find(s => s.name === nameEl.textContent);
       if(!sObj) return;
-      const existing = card.querySelector('.mini-chart-wrap');
-      if(existing) existing.remove();
-      const wrap = document.createElement('div');
-      wrap.className = 'mini-chart-wrap';
-      wrap.innerHTML = buildChart([sObj], 800, 140, {compact:true});
-      card.appendChild(wrap);
+      const wrap = card.querySelector('.participant-mini-chart-wrap');
+      if(!wrap) return;
+      wrap.innerHTML = '<div class="participant-mini-chart-label">Poengutvikling</div>' + buildChart([sObj], 800, 140, {compact:true});
     });
 
     // Combined chart at bottom of Deltakere section
