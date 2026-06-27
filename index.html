@@ -139,6 +139,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .legend-dot-neutral{background:var(--text)}
 .legend-dot-miss{background:var(--muted);opacity:.5}
 .match-pill-list{display:flex;flex-direction:column;gap:.4rem;max-height:420px;overflow-y:auto;padding-right:.25rem}
+.match-pill-extra-section{display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border)}
 .match-pill{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--navy-l);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;font-size:.85rem}
 .match-pill-teams{display:flex;align-items:center;gap:.3rem;flex:1;min-width:0;flex-wrap:wrap}
 .match-pill-score{font-family:'Bebas Neue',sans-serif;color:var(--white);margin:0 .3rem;letter-spacing:.03em}
@@ -321,6 +322,35 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-msg{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:1rem;color:var(--red);font-size:.9rem}
 .page-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.05em;margin-bottom:1.5rem}
+.page-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
+.page-title-row .page-title{margin-bottom:0}
+.view-toggle{display:flex;gap:.4rem}
+.view-toggle-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:.04em;padding:.4rem .9rem;border-radius:5px;cursor:pointer;transition:all .15s}
+.view-toggle-btn:hover{border-color:var(--cyan-d);color:var(--text)}
+.view-toggle-btn.active{background:rgba(0,180,216,.15);border-color:var(--cyan);color:var(--cyan)}
+.sluttspill-mester-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1.5rem}
+.bracket-scroll{overflow-x:auto;padding-bottom:1rem;position:relative}
+.bracket-scroll::after{content:'';position:absolute;top:0;right:0;width:32px;height:100%;background:linear-gradient(90deg,transparent,var(--navy));pointer-events:none}
+.bracket-cols{display:flex;gap:.6rem;min-width:max-content;padding:.25rem}
+.bracket-col{display:flex;flex-direction:column;flex-shrink:0;width:150px;gap:.5rem}
+.bracket-col-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:.2rem}
+.bracket-col.final-col{width:170px;justify-content:center}
+.bracket-box{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.bracket-box:hover{border-color:var(--cyan-d)}
+.bracket-box.final-box{border:2px solid var(--gold);box-shadow:0 0 0 1px rgba(244,196,0,.2)}
+.bracket-box-team{padding:.4rem .55rem;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;gap:.4rem}
+.bracket-box-team.winner{background:rgba(0,180,216,.12);border-left:3px solid var(--cyan);font-weight:600}
+.bracket-box-team.loser{opacity:.45}
+.bracket-box-team+.bracket-box-team{border-top:1px solid var(--border)}
+.bracket-box-meta{padding:.22rem .55rem;background:var(--navy);font-size:.62rem;color:var(--muted);display:flex;justify-content:flex-end;gap:.35rem;align-items:center}
+@media(max-width:700px){
+  .page-title-row{flex-direction:row}
+  .bracket-col{width:118px}
+  .bracket-col.final-col{width:128px}
+  .bracket-box-team{font-size:.7rem;padding:.35rem .45rem;gap:.25rem}
+  .bracket-box-meta{font-size:.56rem;padding:.18rem .45rem}
+  .bracket-col-title{font-size:.64rem}
+}
 
 /* HAMBURGER */
 .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem;margin-left:.5rem}
@@ -439,9 +469,16 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     <div id="matches-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
   </section>
   <section id="sluttspill" class="section">
-    <div class="page-title">&#128302; Sluttspill-tips</div>
-    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Antall deltakere som har tippet hvert lag til &aring; n&aring; runden.</p>
-    <div id="knockout-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
+    <div class="page-title-row">
+      <div class="page-title">&#127942; Sluttspill</div>
+      <div class="view-toggle">
+        <button id="sluttspill-liste-btn" class="view-toggle-btn active" onclick="setSluttspillView('liste')">Liste</button>
+        <button id="sluttspill-bracket-btn" class="view-toggle-btn" onclick="setSluttspillView('bracket')">Bracket</button>
+      </div>
+    </div>
+    <div id="sluttspill-mester"></div>
+    <div id="sluttspill-liste"></div>
+    <div id="sluttspill-bracket" style="display:none"></div>
   </section>
   <section id="tabell" class="section">
     <div class="page-title">&#128202; Tabeller &mdash; Gruppespill</div>
@@ -4253,6 +4290,85 @@ function computeGroupTable(matchList){
   return Object.values(teams).sort((a,b) => b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
 }
 
+// Build shared bracket-resolution state (group standings, best-thirds, resolveTeam).
+// Used by the Sluttspill tab. Kept separate from the Kamper-tab's own copy
+// to avoid risk of cross-breaking either renderer.
+function buildBracketState(){
+  const apiMatches = Object.values(state.results).filter(r=>r.group && !r.home.match(/^[12W3L]/));
+  const koMatches = Object.values(state.results).filter(r=>!r.group);
+  const groupRanks = {};
+  for(const match of apiMatches){
+    const g = (match.group||'').replace('Group ','');
+    if(!g) continue;
+    if(!groupRanks[g]) groupRanks[g] = {};
+    for(const team of [match.home, match.away]){
+      if(!groupRanks[g][team]) groupRanks[g][team] = {team,Pts:0,GF:0,GA:0,GD:0,P:0};
+    }
+    if(!match.played) continue;
+    groupRanks[g][match.home].P++; groupRanks[g][match.away].P++;
+    groupRanks[g][match.home].GF += match.homeGoals; groupRanks[g][match.home].GA += match.awayGoals;
+    groupRanks[g][match.away].GF += match.awayGoals; groupRanks[g][match.away].GA += match.homeGoals;
+    if(match.homeGoals > match.awayGoals) groupRanks[g][match.home].Pts += 3;
+    else if(match.homeGoals < match.awayGoals) groupRanks[g][match.away].Pts += 3;
+    else { groupRanks[g][match.home].Pts++; groupRanks[g][match.away].Pts++; }
+  }
+  const groupSorted = {}, groupComplete = {};
+  for(const g of Object.keys(groupRanks)){
+    for(const t of Object.values(groupRanks[g])) t.GD = t.GF - t.GA;
+    groupSorted[g] = Object.values(groupRanks[g]).sort((a,b)=>b.Pts!==a.Pts?b.Pts-a.Pts:b.GD!==a.GD?b.GD-a.GD:b.GF-a.GF);
+    const matchesInGroup = apiMatches.filter(m=>(m.group||'').replace('Group ','')===g);
+    groupComplete[g] = matchesInGroup.length>0 && matchesInGroup.every(m=>m.played);
+  }
+  const allGroupLetters = Object.keys(groupSorted);
+  const allGroupsComplete = allGroupLetters.length===12 && allGroupLetters.every(g=>groupComplete[g]);
+  const bestThirdSlotMap = {};
+  if(allGroupsComplete){
+    const thirdSlotCodes = koMatches.filter(m=>m.round==='Round of 32').sort((a,b)=>(a.num||0)-(b.num||0))
+      .flatMap(m=>[m.home,m.away]).filter(c=>/^3[A-L/]+$/.test(c));
+    const usedTeams = new Set();
+    for(const code of thirdSlotCodes){
+      const groups = code.slice(1).split('/');
+      const candidates = groups.filter(g=>groupSorted[g]&&groupSorted[g][2])
+        .map(g=>groupSorted[g][2]).filter(t=>!usedTeams.has(t.team))
+        .sort((a,b)=>b.Pts!==a.Pts?b.Pts-a.Pts:b.GD!==a.GD?b.GD-a.GD:b.GF-a.GF);
+      if(candidates.length){ bestThirdSlotMap[code]=candidates[0].team; usedTeams.add(candidates[0].team); }
+    }
+  }
+  function resolveTeam(code){
+    if(!code) return {name:'TBA', locked:false};
+    if(!/^([12W3L]|3[A-L])/.test(code) && code.length > 2) return {name:code, locked:true};
+    let m = code.match(/^([12])([A-L])$/);
+    if(m){
+      const pos = parseInt(m[1])-1, g = m[2];
+      const ranked = groupSorted[g];
+      if(!ranked || !ranked[pos]) return {name:code, locked:false};
+      if(groupComplete[g]) return {name:ranked[pos].team, locked:true};
+      return {name:ranked[pos].team + ' (forel\u00f8pig)', locked:false};
+    }
+    m = code.match(/^3([A-L/]+)$/);
+    if(m){
+      const groups = m[1].split('/');
+      const assigned = bestThirdSlotMap[code];
+      if(assigned) return {name:assigned, locked:true};
+      return {name:'Beste 3\'er av ' + groups.join('/'), locked:false};
+    }
+    m = code.match(/^([WL])(\d+)$/);
+    if(m){
+      const wl = m[1], num = parseInt(m[2]);
+      const refMatch = koMatches.find(km => km.num === num);
+      if(refMatch && refMatch.played){
+        const isWinner = wl === 'W';
+        const homeWon = refMatch.homeGoals > refMatch.awayGoals;
+        const team = (isWinner === homeWon) ? refMatch.home : refMatch.away;
+        return {name:team, locked:true};
+      }
+      return {name:(wl==='W'?'Vinner ':'Taper ')+'kamp '+num, locked:false};
+    }
+    return {name:code, locked:false};
+  }
+  return {apiMatches, koMatches, groupSorted, groupComplete, allGroupsComplete, resolveTeam};
+}
+
 async function boot(){
   try{
     el('status-bar','<span><span class="dot"></span>Henter kampresultater...</span><span></span>');
@@ -4322,7 +4438,7 @@ async function boot(){
       }
 
       // ─── Group position points (2p) + 100% order bonus (10p) ───────
-      let groupPosPts = 0, groupBonusGroups = 0;
+      let groupPosPts = 0, groupBonusGroups = 0, groupPosCount = 0;
       for(const g of Object.keys(groupActualOrder)){
         const matchesInGroup = groupsByLetter[g];
         const predMatches = [];
@@ -4339,18 +4455,19 @@ async function boot(){
           if(predictedOrder[i] === actualOrder[i]){ correctPositions++; total += POINTS.groupPosition; }
         }
         groupPosPts += correctPositions * POINTS.groupPosition;
+        groupPosCount += correctPositions;
         if(correctPositions === 4){ total += POINTS.groupBonus; groupBonusGroups++; }
       }
 
       // ─── Round of 32 advancement (4p per qualified team) ────────────
-      let r32Pts = 0;
+      let r32Pts = 0, r32Count = 0;
       if(qualifiedR32 && p.knockout && p.knockout.r32){
         for(const team of p.knockout.r32){
-          if(qualifiedR32.has(team)){ total += POINTS.r32; r32Pts += POINTS.r32; }
+          if(qualifiedR32.has(team)){ total += POINTS.r32; r32Pts += POINTS.r32; r32Count++; }
         }
       }
 
-      return{...p,total,exact,result,groupPosPts,groupBonusGroups,r32Pts};
+      return{...p,total,exact,result,groupPosPts,groupBonusGroups,groupPosCount,r32Pts,r32Count};
     });
     participants.sort((a,b)=>b.total-a.total);
     state.participants=participants;
@@ -4647,6 +4764,34 @@ function renderAll(){
     return candidates[0].team;
   }
 
+  // ─── Unique "best third" slot assignment ───────────────────────────
+  // A team can only fill ONE round-of-32 "best third" slot. We resolve
+  // all 8 such slots together (in match-number order) so the same team
+  // never gets assigned to more than one slot.
+  const allGroupLetters = Object.keys(groupSorted);
+  const allGroupsCompleteForThirds = allGroupLetters.length === 12 && allGroupLetters.every(g => groupComplete[g]);
+  const bestThirdSlotMap = {}; // code string -> resolved team name
+  if(allGroupsCompleteForThirds){
+    const thirdSlotCodes = koMatches
+      .filter(m => m.round === 'Round of 32')
+      .sort((a,b)=>(a.num||0)-(b.num||0))
+      .flatMap(m => [m.home, m.away])
+      .filter(c => /^3[A-L\/]+$/.test(c));
+    const usedTeams = new Set();
+    for(const code of thirdSlotCodes){
+      const groups = code.slice(1).split('/');
+      const candidates = groups
+        .filter(g => groupSorted[g] && groupSorted[g][2])
+        .map(g => groupSorted[g][2])
+        .filter(t => !usedTeams.has(t.team))
+        .sort((a,b) => b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
+      if(candidates.length){
+        bestThirdSlotMap[code] = candidates[0].team;
+        usedTeams.add(candidates[0].team);
+      }
+    }
+  }
+
   // Resolve placeholder to team name (or display string)
   // Returns {name, locked} where locked=true means it's the actual final team
   function resolveTeam(code){
@@ -4666,12 +4811,13 @@ function renderAll(){
       return {name:ranked[pos].team + ' (foreløpig)', locked:false};
     }
 
-    // Pattern: 3A/B/C/D/F (best third among these groups)
+    // Pattern: 3A/B/C/D/F (best third among these groups) — uses the
+    // globally unique slot assignment so no team appears in two slots
     m = code.match(/^3([A-L/]+)$/);
     if(m){
       const groups = m[1].split('/');
-      const best = bestThirdAmong(groups);
-      if(best) return {name:best, locked:true};
+      const assigned = bestThirdSlotMap[code];
+      if(assigned) return {name:assigned, locked:true};
       return {name:'Beste 3\'er av ' + groups.join('/'), locked:false};
     }
 
@@ -4753,21 +4899,7 @@ function renderAll(){
 
   el('matches-content',mhtml||'<p style="color:var(--muted)">Ingen kampdata.</p>');
 
-  const rounds=[{key:'r32',label:'16-delsfin.'},{key:'r16',label:'8-delsfin.'},{key:'qf',label:'Kvartfinale'},{key:'sf',label:'Semifinale'}];
-  let khtml='<div class="bracket"><div class="bracket-rounds">';
-  for(const{key,label}of rounds){
-    const counts={};
-    for(const p of state.participants)for(const t of(p.knockout&&p.knockout[key]||[]))counts[t]=(counts[t]||0)+1;
-    const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-    khtml+=`<div class="bracket-round"><div class="bracket-round-title">${label}</div>`;
-    for(const[team,count]of sorted)khtml+=`<div class="bracket-match"><div class="bracket-team"><span>${flag(team)} ${team}</span><span style="color:var(--muted);font-size:.75rem">${count}/${state.participants.length}</span></div></div>`;
-    khtml+='</div>';
-  }
-  khtml+=`<div class="bracket-round"><div class="bracket-round-title">\ud83c\udfc6 Mester</div>`;
-  for(const p of state.participants)if(p.knockout&&p.knockout.champion)
-    khtml+=`<div class="bracket-match"><div class="bracket-team winner">${flag(p.knockout.champion)} ${p.knockout.champion} <span style="color:var(--muted);font-size:.7rem">(${p.name})</span></div></div>`;
-  khtml+='</div></div></div>';
-  el('knockout-content',khtml);
+  renderSluttspillTab();
 
   const phtml=state.participants.map(p=>{
     const champ=(p.knockout&&p.knockout.champion)||'\u2013';
@@ -4803,6 +4935,29 @@ function renderAll(){
       </div>`;
     }).join('');
 
+    // Extra summary rows for group position / bonus / R32 advancement
+    // (only shown once relevant data is available)
+    const extraRows = [];
+    if((p.groupPosCount||0) > 0 || (p.groupPosPts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+        <span class="match-pill-teams">Riktig plassering i gruppe: ${p.groupPosCount||0}</span>
+        <span class="match-pill-pts">+${p.groupPosPts||0} p</span>
+      </div>`);
+    }
+    if((p.groupBonusGroups||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-gold-hit">
+        <span class="match-pill-teams">Bonus: 100% riktig gruppe (${p.groupBonusGroups} gruppe${p.groupBonusGroups>1?'r':''})</span>
+        <span class="match-pill-pts">+${p.groupBonusGroups*POINTS.groupBonus} p</span>
+      </div>`);
+    }
+    if((p.r32Count||0) > 0 || (p.r32Pts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+        <span class="match-pill-teams">Riktig lag til 16-delsfinale: ${p.r32Count||0}</span>
+        <span class="match-pill-pts">+${p.r32Pts||0} p</span>
+      </div>`);
+    }
+    const extraRowsHtml = extraRows.length ? `<div class="match-pill-extra-section">${extraRows.join('')}</div>` : '';
+
     return`<div class="participant-card" onclick="togglePanel('${detailId}');this.classList.toggle('expanded')">
       <div class="participant-name"><span>${p.name}</span><span class="pts-big">${p.total} poeng</span></div>
       <div class="participant-stats">
@@ -4819,6 +4974,7 @@ function renderAll(){
           <span><span class="legend-dot legend-dot-miss"></span>Feil</span>
         </div>
         <div class="match-pill-list">${matchPills || '<p style="color:var(--muted);font-size:.85rem">Ingen tips funnet.</p>'}</div>
+        ${extraRowsHtml}
         <div class="participant-mini-chart-wrap"></div>
       </div>
     </div>`;
@@ -5122,6 +5278,126 @@ function renderAll(){
 // JS doesn't have Python's sum() — fix inline
 function sum(n){return n}
 
+// ─── SLUTTSPILL TAB ──────────────────────────────────────────────────
+const KO_ROUNDS = [
+  {round:'Round of 32', label:'16-delsfinale', icon:'\ud83c\udfc6'},
+  {round:'Round of 16', label:'8-delsfinale', icon:'\ud83c\udfc6'},
+  {round:'Quarter-final', label:'Kvartfinale', icon:'\ud83c\udfc6'},
+  {round:'Semi-final', label:'Semifinale', icon:'\ud83c\udfc6'},
+  {round:'Match for third place', label:'Bronsefinale', icon:'\ud83e\udd49'},
+  {round:'Final', label:'Finale', icon:'\ud83c\udfc6'},
+];
+
+function setSluttspillView(mode){
+  document.getElementById('sluttspill-liste').style.display = mode==='liste' ? '' : 'none';
+  document.getElementById('sluttspill-bracket').style.display = mode==='bracket' ? '' : 'none';
+  document.getElementById('sluttspill-liste-btn').classList.toggle('active', mode==='liste');
+  document.getElementById('sluttspill-bracket-btn').classList.toggle('active', mode==='bracket');
+}
+
+function renderSluttspillTab(){
+  if(!state.results || !Object.keys(state.results).length) return;
+  const bs = buildBracketState();
+
+  // ─── Mester-tips summary (reuse champion grouping) ─────────────────
+  const byTeam = {};
+  for(const p of state.participants){
+    const t = p.knockout && p.knockout.champion;
+    if(!t) continue;
+    if(!byTeam[t]) byTeam[t] = [];
+    byTeam[t].push(p.name);
+  }
+  const sortedTeams = Object.entries(byTeam).sort((a,b)=>b[1].length-a[1].length);
+  const mesterHtml = sortedTeams.map(([team,names]) => `
+    <div class="champ-row">
+      <div class="champ-team"><span class="champ-flag">${flag(team)}</span><span class="champ-name">${team}</span><span class="champ-count">${names.length}</span></div>
+      <div class="champ-chips">${names.map(n=>`<span class="champ-chip">${n}</span>`).join('')}</div>
+    </div>`).join('');
+  el('sluttspill-mester', `<div class="sluttspill-mester-card"><div class="card-title">\ud83c\udfc6 Mester-tips</div>${mesterHtml || '<p style="color:var(--muted);font-size:.85rem">Ingen data.</p>'}</div>`);
+
+  // ─── Liste mode ─────────────────────────────────────────────────────
+  let listeHtml = '';
+  for(const {round, label, icon} of KO_ROUNDS){
+    const matches = bs.koMatches.filter(m=>m.round===round).sort((a,b)=>(a.num||0)-(b.num||0));
+    if(!matches.length) continue;
+    const playedCount = matches.filter(m=>m.played).length;
+    const roundId = 'sluttspill-round-' + round.replace(/\s/g,'_');
+    listeHtml += `<div class="match-group" style="margin-bottom:1.5rem"><button class="group-header-btn group-header-btn-top" onclick="togglePanel('${roundId}')">
+      <span>${icon} ${label} <span style="color:var(--muted);font-weight:400;font-size:.8em">(${playedCount}/${matches.length} spilt)</span></span>
+      <span class="upcoming-arrow">\u25be</span>
+    </button><div id="${roundId}" class="match-group-panel">`;
+    for(const match of matches){
+      const homeR = bs.resolveTeam(match.home), awayR = bs.resolveTeam(match.away);
+      const played = match.played;
+      const aH = played ? match.homeGoals : '\u2013', aA = played ? match.awayGoals : '\u2013';
+      const nt = toNorwegianTime(match.date, match.time);
+      const metaTimeLabel = nt ? formatNoTime(nt) : null;
+      const channel = homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null;
+      const isLive = !played && nt && (Date.now() >= nt.getTime()) && (Date.now() <= nt.getTime() + 150*60*1000);
+      const scoreDisplay = played ? `${aH} \u2013 ${aA}` : isLive ? '<span class="live-pulse">\ud83d\udd34 LIVE</span>' : '<span style="color:var(--muted)">vs</span>';
+      let homeWinClass='', awayWinClass='';
+      if(played){
+        if(match.homeGoals>match.awayGoals) homeWinClass='ko-winner';
+        else if(match.awayGoals>match.homeGoals) awayWinClass='ko-winner';
+      }
+      const pid = 'pred-sluttspill-'+(match.num||0);
+      const canShowPreds = homeR.locked && awayR.locked;
+      listeHtml += `<div class="match-row ${played?'played':''}" ${canShowPreds?`onclick="togglePanel('${pid}')"`:''}>
+        <div class="match-teams">
+          <span class="team-name home ${homeWinClass}">${homeR.locked?flag(homeR.name):''} ${homeR.name}</span>
+          <span class="score-box">${scoreDisplay}</span>
+          <span class="team-name away ${awayWinClass}">${awayR.name} ${awayR.locked?flag(awayR.name):''}</span>
+        </div>
+        <div class="match-meta-inline">
+          ${metaTimeLabel?`<span class="match-time">${metaTimeLabel}</span>`:''}
+          ${channel?`<span class="channel-badge channel-${channel.toLowerCase()}">${channel}</span>`:'<span style="color:var(--muted);font-size:.7rem">TBA</span>'}
+        </div>
+      </div>`;
+      if(canShowPreds){
+        const champPicks = state.participants.filter(p=>p.knockout&&p.knockout.champion===homeR.name || p.knockout&&p.knockout.champion===awayR.name)
+          .map(p=>`<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">${p.knockout.champion}</span></div>`).join('');
+        listeHtml += `<div id="${pid}" class="predictions-panel">
+          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Mester-tips blant disse lagene</div>
+          <div class="pred-grid">${champPicks || '<p style="color:var(--muted);font-size:.85rem">Ingen har tippet disse lagene som mester.</p>'}</div>
+        </div>`;
+      }
+    }
+    listeHtml += '</div></div>';
+  }
+  el('sluttspill-liste', listeHtml || '<p style="color:var(--muted)">Sluttspilldata kommer n\u00e5r turneringen er klar.</p>');
+
+  // ─── Bracket mode ───────────────────────────────────────────────────
+  let bracketHtml = '<div class="bracket-scroll"><div class="bracket-cols">';
+  for(const {round, label} of KO_ROUNDS){
+    if(round==='Match for third place') continue;
+    const matches = bs.koMatches.filter(m=>m.round===round).sort((a,b)=>(a.num||0)-(b.num||0));
+    if(!matches.length) continue;
+    const isFinal = round==='Final';
+    bracketHtml += `<div class="bracket-col ${isFinal?'final-col':''}"><div class="bracket-col-title">${label}</div>`;
+    for(const match of matches){
+      const homeR = bs.resolveTeam(match.home), awayR = bs.resolveTeam(match.away);
+      const played = match.played;
+      const nt = toNorwegianTime(match.date, match.time);
+      const metaTimeLabel = nt ? formatNoTime(nt) : '';
+      const channel = homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null;
+      let homeWin='', awayWin='';
+      if(played){
+        if(match.homeGoals>match.awayGoals) homeWin='winner'; else if(match.awayGoals>match.homeGoals) awayWin='winner';
+        if(match.homeGoals<match.awayGoals) homeWin='loser'; else if(match.awayGoals<match.homeGoals) awayWin='loser';
+      }
+      const pid = 'pred-bracket-'+(match.num||0);
+      bracketHtml += `<div class="bracket-box ${isFinal?'final-box':''}" onclick="togglePanel('${pid}')">
+        <div class="bracket-box-team ${homeWin}"><span>${homeR.locked?flag(homeR.name):''} ${homeR.name}</span><span>${played?match.homeGoals:'\u2013'}</span></div>
+        <div class="bracket-box-team ${awayWin}"><span>${awayR.locked?flag(awayR.name):''} ${awayR.name}</span><span>${played?match.awayGoals:'\u2013'}</span></div>
+        <div class="bracket-box-meta"><span>${metaTimeLabel}</span>${channel?`<span class="channel-badge channel-${channel.toLowerCase()}" style="font-size:.55rem">${channel}</span>`:''}</div>
+      </div>`;
+    }
+    bracketHtml += '</div>';
+  }
+  bracketHtml += '</div></div>';
+  el('sluttspill-bracket', bracketHtml);
+}
+
 function attachHoverHandlers(){
   const chartContainer = document.getElementById('combo-chart');
   if(!chartContainer) return;
@@ -5304,13 +5580,6 @@ document.addEventListener('touchend', e => {
 }, {passive: true});
 
 boot();
-window.addEventListener('resize', (() => {
-  let t;
-  return () => {
-    clearTimeout(t);
-    t = setTimeout(() => { if(state.participants && state.participants.length) renderAll(); }, 300);
-  };
-})());
 </script>
 </body>
 </html>
