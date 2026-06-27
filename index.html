@@ -4200,6 +4200,34 @@ function togglePanel(id){const e=document.getElementById(id);if(e)e.classList.to
 
 
 const CHANNEL_MAP = {"Mexico||South Africa": "TV2", "Czech Republic||South Korea": "NRK", "Bosnia & Herzegovina||Canada": "NRK", "Paraguay||USA": "TV2", "Qatar||Switzerland": "NRK", "Brazil||Morocco": "TV2", "Haiti||Scotland": "TV2", "Australia||Turkey": "TV2", "Curaçao||Germany": "NRK", "Japan||Netherlands": "TV2", "Ecuador||Ivory Coast": "TV2", "Sweden||Tunisia": "TV2", "Cape Verde||Spain": "TV2", "Belgium||Egypt": "NRK", "Saudi Arabia||Uruguay": "NRK", "Iran||New Zealand": "NRK", "France||Senegal": "TV2", "Iraq||Norway": "TV2", "Algeria||Argentina": "NRK", "Austria||Jordan": "NRK", "DR Congo||Portugal": "NRK", "Croatia||England": "TV2", "Ghana||Panama": "TV2", "Colombia||Uzbekistan": "TV2", "Czech Republic||South Africa": "NRK", "Bosnia & Herzegovina||Switzerland": "TV2", "Canada||Qatar": "TV2", "Mexico||South Korea": "TV2", "Australia||USA": "NRK", "Morocco||Scotland": "NRK", "Brazil||Haiti": "NRK", "Paraguay||Turkey": "NRK", "Netherlands||Sweden": "NRK", "Germany||Ivory Coast": "TV2", "Curaçao||Ecuador": "TV2", "Japan||Tunisia": "NRK", "Saudi Arabia||Spain": "NRK", "Belgium||Iran": "TV2", "Cape Verde||Uruguay": "TV2", "Egypt||New Zealand": "TV2", "Argentina||Austria": "TV2", "France||Iraq": "NRK", "Norway||Senegal": "NRK", "Algeria||Jordan": "TV2", "England||Ghana": "NRK", "Portugal||Uzbekistan": "TV2", "Croatia||Panama": "NRK", "Colombia||DR Congo": "TV2", "Canada||Switzerland": "NRK", "Bosnia & Herzegovina||Qatar": "NRK", "Brazil||Scotland": "NRK", "Haiti||Morocco": "NRK", "Czech Republic||Mexico": "TV2", "South Africa||South Korea": "TV2", "Curaçao||Ivory Coast": "TV2", "Ecuador||Germany": "TV2", "Netherlands||Tunisia": "TV2", "Japan||Sweden": "TV2", "Turkey||USA": "NRK", "Australia||Paraguay": "NRK", "France||Norway": "NRK", "Iraq||Senegal": "NRK", "Colombia||Portugal": "NRK", "DR Congo||Uzbekistan": "NRK", "Cape Verde||Saudi Arabia": "NRK", "Spain||Uruguay": "NRK", "Egypt||Iran": "TV2", "Belgium||New Zealand": "TV2", "England||Panama": "TV2", "Croatia||Ghana": "TV2", "Algeria||Austria": "NRK", "Argentina||Jordan": "NRK"};
+
+// Manually-confirmed Round of 32 matchups from official news sources
+// (overrides our own best-third calculation, which requires ALL 12 groups
+// complete and uses a simplified assignment that may not match FIFA's
+// official combinatorial rules). Update this as more matchups are confirmed.
+// Keyed by match number (from the openfootball fixture list).
+const CONFIRMED_R32 = {
+  73: {home:'South Africa', away:'Canada'},
+  74: {home:'Germany', away:'Paraguay'},
+  75: {home:'Netherlands', away:'Morocco'},
+  76: {home:'Brazil', away:'Japan'},
+  77: {home:'France', away:'Sweden'},
+  78: {home:'Ivory Coast', away:'Norway'},
+  79: {home:'Mexico', away:'Ecuador'},
+  81: {home:'USA', away:'Bosnia & Herzegovina'},
+  86: {home:'Argentina', away:'Cape Verde'},
+  88: {home:'Australia', away:'Egypt'},
+};
+
+// NRK/TV2 channel assignment for 16-delsfinale matches (verified match-by-match
+// from official TV-guide sources). 8-delsfinale/kvartfinale channel sources were
+// ambiguous (showed "NRK/TV2" for every match — likely a scraping artifact) so
+// those stay TBA until we find a reliable per-match source. Semifinaler/
+// bronse/finale channels were already confirmed separately in CHANNEL_MAP logic.
+const KO_CHANNEL_MAP = {
+  73:'NRK', 74:'NRK', 75:'TV2', 76:'TV2', 77:'TV2', 78:'NRK', 79:'TV2', 80:'NRK',
+  81:'NRK', 82:'TV2', 83:'NRK', 84:'TV2', 85:'NRK', 86:'NRK', 87:'TV2', 88:'TV2',
+};
 const FINAL_DATE = new Date('2026-07-19T21:00:00+02:00'); // Norsk sommertid
 
 function getCountdown() {
@@ -4852,8 +4880,9 @@ function renderAll(){
     </button>
     <div id="${roundId}" class="match-group-panel">`;
     for(const match of matches){
-      const homeResolved = resolveTeam(match.home);
-      const awayResolved = resolveTeam(match.away);
+      const koOverride = CONFIRMED_R32[match.num];
+      const homeResolved = koOverride ? {name:koOverride.home,locked:true} : resolveTeam(match.home);
+      const awayResolved = koOverride ? {name:koOverride.away,locked:true} : resolveTeam(match.away);
       const homeTeam = homeResolved.name;
       const awayTeam = awayResolved.name;
       const played = match.played;
@@ -4862,7 +4891,7 @@ function renderAll(){
       const pid = 'pred-ko-' + (match.num||0);
       const noTime = toNorwegianTime(match.date, match.time);
       const metaTimeLabel = noTime ? formatNoTime(noTime) : null;
-      const channel = homeResolved.locked && awayResolved.locked ? getChannel(homeTeam, awayTeam) : null;
+      const channel = KO_CHANNEL_MAP[match.num] || (homeResolved.locked && awayResolved.locked ? getChannel(homeTeam, awayTeam) : null);
       const scoreDisplay = played ? `${aH} \u2013 ${aA}` : '<span style="color:var(--muted)">vs</span>';
 
       // Determine winner side for green border (only for played KO matches)
@@ -5327,12 +5356,14 @@ function renderSluttspillTab(){
       <span class="upcoming-arrow">\u25be</span>
     </button><div id="${roundId}" class="match-group-panel">`;
     for(const match of matches){
-      const homeR = bs.resolveTeam(match.home), awayR = bs.resolveTeam(match.away);
+      const override = CONFIRMED_R32[match.num];
+      const homeR = override ? {name:override.home,locked:true} : bs.resolveTeam(match.home);
+      const awayR = override ? {name:override.away,locked:true} : bs.resolveTeam(match.away);
       const played = match.played;
       const aH = played ? match.homeGoals : '\u2013', aA = played ? match.awayGoals : '\u2013';
       const nt = toNorwegianTime(match.date, match.time);
       const metaTimeLabel = nt ? formatNoTime(nt) : null;
-      const channel = homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null;
+      const channel = KO_CHANNEL_MAP[match.num] || (homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null);
       const isLive = !played && nt && (Date.now() >= nt.getTime()) && (Date.now() <= nt.getTime() + 150*60*1000);
       const scoreDisplay = played ? `${aH} \u2013 ${aA}` : isLive ? '<span class="live-pulse">\ud83d\udd34 LIVE</span>' : '<span style="color:var(--muted)">vs</span>';
       let homeWinClass='', awayWinClass='';
@@ -5375,11 +5406,13 @@ function renderSluttspillTab(){
     const isFinal = round==='Final';
     bracketHtml += `<div class="bracket-col ${isFinal?'final-col':''}"><div class="bracket-col-title">${label}</div>`;
     for(const match of matches){
-      const homeR = bs.resolveTeam(match.home), awayR = bs.resolveTeam(match.away);
+      const override = CONFIRMED_R32[match.num];
+      const homeR = override ? {name:override.home,locked:true} : bs.resolveTeam(match.home);
+      const awayR = override ? {name:override.away,locked:true} : bs.resolveTeam(match.away);
       const played = match.played;
       const nt = toNorwegianTime(match.date, match.time);
       const metaTimeLabel = nt ? formatNoTime(nt) : '';
-      const channel = homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null;
+      const channel = KO_CHANNEL_MAP[match.num] || (homeR.locked && awayR.locked ? getChannel(homeR.name, awayR.name) : null);
       let homeWin='', awayWin='';
       if(played){
         if(match.homeGoals>match.awayGoals) homeWin='winner'; else if(match.awayGoals>match.homeGoals) awayWin='winner';
