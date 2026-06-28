@@ -139,6 +139,15 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .legend-dot-neutral{background:var(--text)}
 .legend-dot-miss{background:var(--muted);opacity:.5}
 .match-pill-list{display:flex;flex-direction:column;gap:.4rem;max-height:420px;overflow-y:auto;padding-right:.25rem}
+.tip-group-list{display:flex;flex-direction:column;gap:.4rem}
+.tip-group-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:var(--navy-l);border:1px solid var(--border);border-radius:5px;padding:.45rem .65rem;font-size:.82rem}
+.tip-group-row.tip-both{border-color:var(--gold);background:rgba(244,196,0,.08)}
+.tip-group-names{color:var(--text);flex:1;min-width:0}
+.tip-group-pick{font-family:'Bebas Neue',sans-serif;color:var(--cyan);letter-spacing:.03em;white-space:nowrap}
+.tip-group-row.tip-both .tip-group-pick{color:var(--gold)}
+@media(max-width:700px){
+  .tip-group-row{font-size:.75rem;flex-direction:column;align-items:flex-start;gap:.2rem}
+}
 .match-pill-extra-section{display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border)}
 .match-pill{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--navy-l);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;font-size:.85rem}
 .match-pill-teams{display:flex;align-items:center;gap:.3rem;flex:1;min-width:0;flex-wrap:wrap}
@@ -415,9 +424,8 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
     <div class="logo" onclick="goToLeaderboard()" style="cursor:pointer">&#9917; VM <em>2026</em> &middot; Tippen</div>
     <nav class="desktop-nav">
       <button class="active" onclick="showSection('ledertavle',this)">&#127942; Ledertavle</button>
-      <button onclick="showSection('kamper',this)">&#9917; Kamper</button>
+      <button onclick="showSection('gruppespill',this)">&#9917; Gruppespill</button>
       <button onclick="showSection('sluttspill',this)">&#128302; Sluttspill</button>
-      <button onclick="showSection('tabell',this)">&#128202; Tabell</button>
       <button onclick="showSection('deltakere',this)">&#128100; Deltakere</button>
       <button onclick="showSection('poeng',this)">&#128203; Poeng</button>
     </nav>
@@ -435,9 +443,8 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
   </div>
   <nav class="drawer-nav">
     <button onclick="showSection('ledertavle',this);closeDrawer()">&#127942; Ledertavle</button>
-    <button onclick="showSection('kamper',this);closeDrawer()">&#9917; Kamper</button>
+    <button onclick="showSection('gruppespill',this);closeDrawer()">&#9917; Gruppespill</button>
     <button onclick="showSection('sluttspill',this);closeDrawer()">&#128302; Sluttspill</button>
-    <button onclick="showSection('tabell',this);closeDrawer()">&#128202; Tabell</button>
     <button onclick="showSection('deltakere',this);closeDrawer()">&#128100; Deltakere</button>
     <button onclick="showSection('poeng',this);closeDrawer()">&#128203; Poeng</button>
   </nav>
@@ -464,9 +471,9 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
       <div id="champion-picks"></div>
     </div>
   </section>
-  <section id="kamper" class="section">
-    <div class="page-title">&#9917; Kamper &mdash; Gruppespill</div>
-    <div id="matches-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
+  <section id="gruppespill" class="section">
+    <div class="page-title">&#9917; Gruppespill</div>
+    <div id="gruppespill-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
   </section>
   <section id="sluttspill" class="section">
     <div class="page-title-row">
@@ -476,14 +483,10 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
         <button id="sluttspill-bracket-btn" class="view-toggle-btn" onclick="setSluttspillView('bracket')">Bracket</button>
       </div>
     </div>
+    <div id="sluttspill-kommende"></div>
     <div id="sluttspill-mester"></div>
     <div id="sluttspill-liste"></div>
     <div id="sluttspill-bracket" style="display:none"></div>
-  </section>
-  <section id="tabell" class="section">
-    <div class="page-title">&#128202; Tabeller &mdash; Gruppespill</div>
-    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Live-beregnet ut fra spilte kamper. Sorteres p&aring; poeng, deretter m&aring;lforskjell, m&aring;l scoret.</p>
-    <div id="tabell-content"><div class="loading"><div class="spinner"></div>Laster inn...</div></div>
   </section>
   <section id="deltakere" class="section">
     <div class="page-title">&#128100; Deltakere</div>
@@ -4214,8 +4217,14 @@ const CONFIRMED_R32 = {
   77: {home:'France', away:'Sweden'},
   78: {home:'Ivory Coast', away:'Norway'},
   79: {home:'Mexico', away:'Ecuador'},
+  80: {home:'England', away:'DR Congo'},
   81: {home:'USA', away:'Bosnia & Herzegovina'},
+  82: {home:'Belgium', away:'Senegal'},
+  83: {home:'Portugal', away:'Croatia'},
+  84: {home:'Spain', away:'Austria'},
+  85: {home:'Switzerland', away:'Algeria'},
   86: {home:'Argentina', away:'Cape Verde'},
+  87: {home:'Colombia', away:'Ghana'},
   88: {home:'Australia', away:'Egypt'},
 };
 
@@ -4426,14 +4435,14 @@ async function boot(){
       if(!groupsByLetter[g]) groupsByLetter[g] = [];
       groupsByLetter[g].push(m);
     }
-    const groupActualOrder = {};   // {A: [team1,team2,team3,team4]}
+    const groupActualOrder = {};   // {A: [{team,Pts,...}, ...]} (full table, not just names)
     const groupComplete = {};      // {A: true/false}
     for(const g of Object.keys(groupsByLetter)){
       const matches = groupsByLetter[g];
       groupComplete[g] = matches.length === 6 && matches.every(m=>m.played);
       if(groupComplete[g]){
         const played = matches.map(m=>({home:m.home,away:m.away,homeGoals:m.homeGoals,awayGoals:m.awayGoals}));
-        groupActualOrder[g] = computeGroupTable(played).map(t=>t.team);
+        groupActualOrder[g] = computeGroupTable(played);
       }
     }
     const allGroupsComplete = Object.keys(groupsByLetter).length===12 && Object.values(groupComplete).every(Boolean);
@@ -4445,7 +4454,7 @@ async function boot(){
       const thirds = [];
       for(const g of Object.keys(groupActualOrder)){
         const order = groupActualOrder[g];
-        qualifiedR32.add(order[0]); qualifiedR32.add(order[1]);
+        qualifiedR32.add(order[0].team); qualifiedR32.add(order[1].team);
         const matches = groupsByLetter[g].map(m=>({home:m.home,away:m.away,homeGoals:m.homeGoals,awayGoals:m.awayGoals}));
         const table = computeGroupTable(matches);
         thirds.push(table[2]);
@@ -4465,7 +4474,7 @@ async function boot(){
         if(getRes(pred.hg,pred.ag)===getRes(actual.homeGoals,actual.awayGoals)){total+=POINTS.correctResult;result++;}
       }
 
-      // ─── Group position points (2p) + 100% order bonus (10p) ───────
+      // ─── Group position points (2p) + 100% order+points bonus (10p) ───
       let groupPosPts = 0, groupBonusGroups = 0, groupPosCount = 0;
       for(const g of Object.keys(groupActualOrder)){
         const matchesInGroup = groupsByLetter[g];
@@ -4476,26 +4485,68 @@ async function boot(){
           predMatches.push({home:m.home, away:m.away, homeGoals:pred.hg, awayGoals:pred.ag});
         }
         if(predMatches.length !== 6) continue;
-        const predictedOrder = computeGroupTable(predMatches).map(t=>t.team);
-        const actualOrder = groupActualOrder[g];
+        const predictedOrder = computeGroupTable(predMatches); // array of {team,Pts,...}
+        const actualOrder = groupActualOrder[g]; // array of {team,Pts,...}
         let correctPositions = 0;
+        let allPositionsAndPointsMatch = true;
         for(let i=0;i<4;i++){
-          if(predictedOrder[i] === actualOrder[i]){ correctPositions++; total += POINTS.groupPosition; }
+          const teamMatches = predictedOrder[i].team === actualOrder[i].team;
+          if(teamMatches){ correctPositions++; total += POINTS.groupPosition; }
+          // Bonus requires BOTH correct team-per-position AND identical points for that team
+          if(!teamMatches || predictedOrder[i].Pts !== actualOrder[i].Pts) allPositionsAndPointsMatch = false;
         }
         groupPosPts += correctPositions * POINTS.groupPosition;
         groupPosCount += correctPositions;
-        if(correctPositions === 4){ total += POINTS.groupBonus; groupBonusGroups++; }
+        if(allPositionsAndPointsMatch){ total += POINTS.groupBonus; groupBonusGroups++; }
       }
 
       // ─── Round of 32 advancement (4p per qualified team) ────────────
       let r32Pts = 0, r32Count = 0;
       if(qualifiedR32 && p.knockout && p.knockout.r32){
         for(const team of p.knockout.r32){
-          if(qualifiedR32.has(team)){ total += POINTS.r32; r32Pts += POINTS.r32; r32Count++; }
+          if(qualifiedR32.has(norm(team))){ total += POINTS.r32; r32Pts += POINTS.r32; r32Count++; }
         }
       }
 
-      return{...p,total,exact,result,groupPosPts,groupBonusGroups,groupPosCount,r32Pts,r32Count};
+      // ─── Round of 16 / Quarter-final / Semi-final advancement ──────
+      // ─── + Champion (uses live bracket resolution via buildBracketState) ─
+      let r16Pts = 0, r16Count = 0, qfPts = 0, qfCount = 0, sfPts = 0, sfCount = 0, championPts = 0;
+      if(allGroupsComplete){
+        const bsForScoring = buildBracketState();
+        function reachedSet(roundName){
+          const s = new Set();
+          for(const km of bsForScoring.koMatches.filter(m=>m.round===roundName)){
+            const hOverride = CONFIRMED_R32[km.num];
+            const hR = hOverride ? {name:hOverride.home,locked:true} : bsForScoring.resolveTeam(km.home);
+            const aR = hOverride ? {name:hOverride.away,locked:true} : bsForScoring.resolveTeam(km.away);
+            if(hR.locked) s.add(hR.name);
+            if(aR.locked) s.add(aR.name);
+          }
+          return s;
+        }
+        const reachedR16 = reachedSet('Round of 16');
+        const reachedQF = reachedSet('Quarter-final');
+        const reachedSF = reachedSet('Semi-final');
+        const finalMatch = bsForScoring.koMatches.find(m=>m.round==='Final');
+        let actualChampion = null;
+        if(finalMatch && finalMatch.played){
+          actualChampion = finalMatch.homeGoals > finalMatch.awayGoals ? finalMatch.home : finalMatch.away;
+        }
+        if(p.knockout && p.knockout.r16){
+          for(const team of p.knockout.r16){ if(reachedR16.has(norm(team))){ total += POINTS.r16; r16Pts += POINTS.r16; r16Count++; } }
+        }
+        if(p.knockout && p.knockout.qf){
+          for(const team of p.knockout.qf){ if(reachedQF.has(norm(team))){ total += POINTS.qf; qfPts += POINTS.qf; qfCount++; } }
+        }
+        if(p.knockout && p.knockout.sf){
+          for(const team of p.knockout.sf){ if(reachedSF.has(norm(team))){ total += POINTS.sf; sfPts += POINTS.sf; sfCount++; } }
+        }
+        if(actualChampion && p.knockout && p.knockout.champion && norm(p.knockout.champion) === actualChampion){
+          total += POINTS.champion; championPts = POINTS.champion;
+        }
+      }
+
+      return{...p,total,exact,result,groupPosPts,groupBonusGroups,groupPosCount,r32Pts,r32Count,r16Pts,r16Count,qfPts,qfCount,sfPts,sfCount,championPts};
     });
     participants.sort((a,b)=>b.total-a.total);
     state.participants=participants;
@@ -4593,340 +4644,7 @@ function renderAll(){
     </div>`).join('');
   el('champion-picks',champs||'<p style="color:var(--muted);font-size:.9rem">Ingen data.</p>');
 
-  // Matches — group stage and knockout stage
-  const apiMatches=Object.values(state.results).filter(r=>r.group && !r.home.match(/^[12W3L]/));
-  const koMatches=Object.values(state.results).filter(r=>!r.group);
-  const byGroup={};
-  for(const actual of apiMatches){
-    const g='Gruppe '+(actual.group||'?').replace('Group ','');
-    if(!byGroup[g])byGroup[g]=[];
-    byGroup[g].push(actual);
-  }
-
-  // Build "Kommende kamper" — next 4 unplayed matches (any date)
-  const nowMs = Date.now();
-  const todaysMatches = apiMatches.filter(m => {
-    if(m.played) return false;
-    const nt = toNorwegianTime(m.date, m.time);
-    return nt && nt.getTime() > nowMs - 2*60*60*1000; // include matches that may have just started
-  }).sort((a,b) => {
-    const ta = toNorwegianTime(a.date, a.time);
-    const tb = toNorwegianTime(b.date, b.time);
-    return (ta?ta.getTime():0) - (tb?tb.getTime():0);
-  }).slice(0, 4);
-
-  let mhtml='';
-  if(todaysMatches.length){
-    mhtml+='<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper</div>';
-    for(const actual of todaysMatches){
-      const nt = toNorwegianTime(actual.date, actual.time);
-      const ch = getChannel(actual.home, actual.away);
-      const hh = nt ? String(nt.getUTCHours()).padStart(2,'0') : '?';
-      const mi = nt ? String(nt.getUTCMinutes()).padStart(2,'0') : '?';
-      const played = actual.played;
-      const scoreText = played ? `${actual.homeGoals} \u2013 ${actual.awayGoals}` : `kl. ${hh}:${mi}`;
-      const isLive = !played && nt && (nowMs >= nt.getTime()) && (nowMs <= nt.getTime() + 150*60*1000);
-      const scoreOrDash = played
-        ? `<span class="today-score">${actual.homeGoals} \u2013 ${actual.awayGoals}</span>`
-        : isLive
-          ? '<span class="today-score live-pulse">\ud83d\udd34 LIVE</span>'
-          : '<span class="today-score" style="color:var(--muted)">vs</span>';
-      const todayPid = 'pred-' + actual.home.replace(/\s/g,'_') + '_' + actual.away.replace(/\s/g,'_');
-      const todayPanelId = 'today-' + todayPid;
-      const rightSide = played
-        ? (ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:'')
-        : `<span class="today-kickoff">kl. ${hh}:${mi}</span> ${ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:'<span class="channel-badge" style="background:var(--border);color:var(--muted)">TBA</span>'}`;
-
-      // Build predictions panel content (same as gruppe panel)
-      const tPitems = state.participants.map(p => {
-        const pred = getPred(p, actual.home, actual.away);
-        if(!pred) return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
-        let cls = '';
-        if(played){
-          const isExact = pred.hg===actual.homeGoals && pred.ag===actual.awayGoals;
-          const isCor = getRes(pred.hg,pred.ag)===getRes(actual.homeGoals,actual.awayGoals);
-          cls = isExact?'exact':isCor?'result':'wrong';
-        }
-        return `<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
-      }).join('');
-
-      const groupLetter = (actual.group||'').replace('Group ','');
-      const groupBadge = groupLetter ? `<span class="group-pill">${groupLetter}</span>` : '';
-      mhtml+=`<div class="today-row ${isLive?'today-row-live':''}" onclick="togglePanel('${todayPanelId}')">
-        <span class="today-teams">${groupBadge}${flag(actual.home)} ${actual.home} ${scoreOrDash} ${actual.away} ${flag(actual.away)}</span>
-        <span class="today-right">${rightSide}</span>
-      </div>
-      <div id="${todayPanelId}" class="predictions-panel today-panel">
-        <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Tips per deltaker</div>
-        <div class="pred-grid">${tPitems}</div>
-        <div style="margin-top:.75rem;font-size:.72rem;color:var(--muted)">
-          <span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;
-          <span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;
-          <span style="opacity:.4">\u25a0</span> Feil
-        </div>
-      </div>`;
-    }
-    mhtml+='</div>';
-  } else {
-    mhtml+='<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper</div><div style="padding:.75rem 1rem;color:var(--muted);font-size:.85rem">Ingen flere kamper.</div></div>';
-  }
-
-  const groupStagePanelId = 'group-stage-all';
-  mhtml += `<div class="match-group"><button class="group-header-btn group-header-btn-top" onclick="togglePanel('${groupStagePanelId}')">
-    <span>\u26bd Gruppespill</span>
-    <span class="upcoming-arrow">\u25be</span>
-  </button>
-  <div id="${groupStagePanelId}" class="match-group-panel">`;
-  for(const[grp,list]of Object.entries(byGroup)){
-    const grpId = 'matchgroup-' + grp.replace(/\s/g,'_');
-    const playedCount = list.filter(m=>m.played).length;
-    mhtml+=`<div class="match-subgroup"><button class="group-header-btn group-header-btn-sub" onclick="togglePanel('${grpId}')">
-      <span>${grp} <span style="color:var(--muted);font-weight:400;font-size:.8em">(${playedCount}/${list.length} spilt)</span></span>
-      <span class="upcoming-arrow">\u25be</span>
-    </button>
-    <div id="${grpId}" class="match-group-panel">`;
-    for(const actual of list){
-      const played=actual.played;
-      const aH=played?actual.homeGoals:'\u2013';
-      const aA=played?actual.awayGoals:'\u2013';
-      const pid='pred-'+actual.home.replace(/\s/g,'_')+'_'+actual.away.replace(/\s/g,'_');
-      const pitems=state.participants.map(p=>{
-        const pred=getPred(p,actual.home,actual.away);
-        if(!pred)return`<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
-        let cls='';
-        if(played){
-          const isExact=pred.hg===actual.homeGoals&&pred.ag===actual.awayGoals;
-          const isCor=getRes(pred.hg,pred.ag)===getRes(actual.homeGoals,actual.awayGoals);
-          cls=isExact?'exact':isCor?'result':'wrong';
-        }
-        return`<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
-      }).join('');
-      const noTime = toNorwegianTime(actual.date, actual.time);
-      const channel = getChannel(actual.home, actual.away);
-      const metaTimeLabel = noTime ? formatNoTime(noTime) : null;
-      const scoreDisplay = played ? `${aH} \u2013 ${aA}` : '<span style="color:var(--muted)">vs</span>';
-      mhtml+=`<div class="match-row ${played?'played':''}" onclick="togglePanel('${pid}')">
-        <div class="match-teams">
-          <span class="team-name home">${flag(actual.home)} ${actual.home}</span>
-          <span class="score-box">${scoreDisplay}</span>
-          <span class="team-name away">${actual.away} ${flag(actual.away)}</span>
-        </div>
-        <div class="match-meta-inline">
-          ${metaTimeLabel?`<span class="match-time">${metaTimeLabel}</span>`:''}
-          ${channel?`<span class="channel-badge channel-${channel.toLowerCase()}">${channel}</span>`:''}
-        </div>
-      </div>
-      <div id="${pid}" class="predictions-panel">
-        <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Tips per deltaker</div>
-        <div class="pred-grid">${pitems}</div>
-        <div style="margin-top:.75rem;font-size:.72rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;<span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;<span style="opacity:.4">\u25a0</span> Feil</div>
-      </div>`;
-    }
-    mhtml+='</div></div>';
-  }
-  mhtml += '</div></div>';
-
-  // ─── KNOCKOUT STAGE ────────────────────────────────────────────────
-  const koRounds = [
-    {label:'16-delsfinale (Round of 32)', round:'Round of 32'},
-    {label:'8-delsfinale (Round of 16)', round:'Round of 16'},
-    {label:'Kvartfinale', round:'Quarter-final'},
-    {label:'Semifinale', round:'Semi-final'},
-    {label:'Bronsefinale', round:'Match for third place'},
-    {label:'Finale', round:'Final'},
-  ];
-
-  // Compute group standings to resolve placeholders like 1A, 2B, 3rd places
-  const groupRanks = {}; // {A: [{team,pts,gd,gf}, ...], B: ...}
-  const groupComplete = {}; // {A: true/false}
-  for(const match of apiMatches){
-    const g = (match.group||'').replace('Group ','');
-    if(!g) continue;
-    if(!groupRanks[g]) groupRanks[g] = {};
-    for(const team of [match.home, match.away]){
-      if(!groupRanks[g][team]) groupRanks[g][team] = {team,Pts:0,GF:0,GA:0,GD:0,P:0};
-    }
-    if(!match.played) continue;
-    groupRanks[g][match.home].P++; groupRanks[g][match.away].P++;
-    groupRanks[g][match.home].GF += match.homeGoals;
-    groupRanks[g][match.home].GA += match.awayGoals;
-    groupRanks[g][match.away].GF += match.awayGoals;
-    groupRanks[g][match.away].GA += match.homeGoals;
-    if(match.homeGoals > match.awayGoals){
-      groupRanks[g][match.home].Pts += 3;
-    } else if(match.homeGoals < match.awayGoals){
-      groupRanks[g][match.away].Pts += 3;
-    } else {
-      groupRanks[g][match.home].Pts++; groupRanks[g][match.away].Pts++;
-    }
-  }
-  // Sort + complete check
-  const groupSorted = {};
-  for(const g of Object.keys(groupRanks)){
-    for(const t of Object.values(groupRanks[g])) t.GD = t.GF - t.GA;
-    groupSorted[g] = Object.values(groupRanks[g]).sort((a,b) => {
-      if(b.Pts !== a.Pts) return b.Pts - a.Pts;
-      if(b.GD !== a.GD) return b.GD - a.GD;
-      return b.GF - a.GF;
-    });
-    // Group is complete if all 6 matches played (4 teams, 6 matches per group)
-    const matchesInGroup = apiMatches.filter(m => (m.group||'').replace('Group ','') === g);
-    groupComplete[g] = matchesInGroup.length > 0 && matchesInGroup.every(m => m.played);
-  }
-
-  // Best third place computation across given groups
-  function bestThirdAmong(groups){
-    const candidates = [];
-    for(const g of groups){
-      const ranked = groupSorted[g];
-      if(!ranked || ranked.length < 3) continue;
-      if(!groupComplete[g]) return null; // can't determine until group is done
-      candidates.push({...ranked[2], group:g});
-    }
-    if(candidates.length === 0) return null;
-    candidates.sort((a,b) => {
-      if(b.Pts !== a.Pts) return b.Pts - a.Pts;
-      if(b.GD !== a.GD) return b.GD - a.GD;
-      return b.GF - a.GF;
-    });
-    return candidates[0].team;
-  }
-
-  // ─── Unique "best third" slot assignment ───────────────────────────
-  // A team can only fill ONE round-of-32 "best third" slot. We resolve
-  // all 8 such slots together (in match-number order) so the same team
-  // never gets assigned to more than one slot.
-  const allGroupLetters = Object.keys(groupSorted);
-  const allGroupsCompleteForThirds = allGroupLetters.length === 12 && allGroupLetters.every(g => groupComplete[g]);
-  const bestThirdSlotMap = {}; // code string -> resolved team name
-  if(allGroupsCompleteForThirds){
-    const thirdSlotCodes = koMatches
-      .filter(m => m.round === 'Round of 32')
-      .sort((a,b)=>(a.num||0)-(b.num||0))
-      .flatMap(m => [m.home, m.away])
-      .filter(c => /^3[A-L\/]+$/.test(c));
-    const usedTeams = new Set();
-    for(const code of thirdSlotCodes){
-      const groups = code.slice(1).split('/');
-      const candidates = groups
-        .filter(g => groupSorted[g] && groupSorted[g][2])
-        .map(g => groupSorted[g][2])
-        .filter(t => !usedTeams.has(t.team))
-        .sort((a,b) => b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
-      if(candidates.length){
-        bestThirdSlotMap[code] = candidates[0].team;
-        usedTeams.add(candidates[0].team);
-      }
-    }
-  }
-
-  // Resolve placeholder to team name (or display string)
-  // Returns {name, locked} where locked=true means it's the actual final team
-  function resolveTeam(code){
-    if(!code) return {name:'TBA', locked:false};
-    // Already a real team name
-    if(!/^([12W3L]|3[A-L])/.test(code) && code.length > 2) return {name:code, locked:true};
-
-    // Pattern: 1A, 2B, etc.
-    let m = code.match(/^([12])([A-L])$/);
-    if(m){
-      const pos = parseInt(m[1])-1;
-      const g = m[2];
-      const ranked = groupSorted[g];
-      if(!ranked || !ranked[pos]) return {name:code, locked:false};
-      if(groupComplete[g]) return {name:ranked[pos].team, locked:true};
-      // Show top candidates: if tied or close, show top 2
-      return {name:ranked[pos].team + ' (foreløpig)', locked:false};
-    }
-
-    // Pattern: 3A/B/C/D/F (best third among these groups) — uses the
-    // globally unique slot assignment so no team appears in two slots
-    m = code.match(/^3([A-L/]+)$/);
-    if(m){
-      const groups = m[1].split('/');
-      const assigned = bestThirdSlotMap[code];
-      if(assigned) return {name:assigned, locked:true};
-      return {name:'Beste 3\'er av ' + groups.join('/'), locked:false};
-    }
-
-    // Pattern: W74, L101 — winner/loser of match
-    m = code.match(/^([WL])(\d+)$/);
-    if(m){
-      const wl = m[1], num = parseInt(m[2]);
-      // Find that match in koMatches
-      const refMatch = koMatches.find(km => km.num === num);
-      if(refMatch && refMatch.played){
-        const isWinner = wl === 'W';
-        const homeWon = refMatch.homeGoals > refMatch.awayGoals;
-        const team = (isWinner === homeWon) ? refMatch.home : refMatch.away;
-        return {name:team, locked:true};
-      }
-      return {name:(wl==='W'?'Vinner ':'Taper ')+'kamp '+num, locked:false};
-    }
-
-    return {name:code, locked:false};
-  }
-
-  // Render each KO round
-  for(const {label, round} of koRounds){
-    const matches = koMatches.filter(km => km.round === round)
-      .sort((a,b) => (a.num||0) - (b.num||0));
-    if(matches.length === 0) continue;
-    const roundId = 'koround-' + round.replace(/\s/g,'_');
-    const playedCount = matches.filter(m=>m.played).length;
-    mhtml += `<div class="match-group"><button class="group-header-btn" onclick="togglePanel('${roundId}')">
-      <span>\ud83c\udfc6 ${label} <span style="color:var(--muted);font-weight:400;font-size:.8em">(${playedCount}/${matches.length} spilt)</span></span>
-      <span class="upcoming-arrow">\u25be</span>
-    </button>
-    <div id="${roundId}" class="match-group-panel">`;
-    for(const match of matches){
-      const koOverride = CONFIRMED_R32[match.num];
-      const homeResolved = koOverride ? {name:koOverride.home,locked:true} : resolveTeam(match.home);
-      const awayResolved = koOverride ? {name:koOverride.away,locked:true} : resolveTeam(match.away);
-      const homeTeam = homeResolved.name;
-      const awayTeam = awayResolved.name;
-      const played = match.played;
-      const aH = played ? match.homeGoals : '\u2013';
-      const aA = played ? match.awayGoals : '\u2013';
-      const pid = 'pred-ko-' + (match.num||0);
-      const noTime = toNorwegianTime(match.date, match.time);
-      const metaTimeLabel = noTime ? formatNoTime(noTime) : null;
-      const channel = KO_CHANNEL_MAP[match.num] || (homeResolved.locked && awayResolved.locked ? getChannel(homeTeam, awayTeam) : null);
-      const scoreDisplay = played ? `${aH} \u2013 ${aA}` : '<span style="color:var(--muted)">vs</span>';
-
-      // Determine winner side for green border (only for played KO matches)
-      let homeWinClass = '', awayWinClass = '';
-      if(played){
-        if(match.homeGoals > match.awayGoals) homeWinClass = 'ko-winner';
-        else if(match.awayGoals > match.homeGoals) awayWinClass = 'ko-winner';
-      }
-
-      // Build prediction items (only if both teams locked)
-      let predItems = '';
-      if(homeResolved.locked && awayResolved.locked){
-        predItems = state.participants.map(p => {
-          // For KO matches, we don't have predictions in our system (predictions are group stage only)
-          // Instead, show who picked each team to win this round
-          return '';
-        }).join('');
-      }
-
-      mhtml += `<div class="match-row ${played?'played':''}">
-        <div class="match-teams">
-          <span class="team-name home ${homeWinClass}">${homeResolved.locked?flag(homeTeam):''} ${homeTeam}</span>
-          <span class="score-box">${scoreDisplay}</span>
-          <span class="team-name away ${awayWinClass}">${awayTeam} ${awayResolved.locked?flag(awayTeam):''}</span>
-        </div>
-        <div class="match-meta-inline">
-          ${metaTimeLabel?`<span class="match-time">${metaTimeLabel}</span>`:''}
-          ${channel?`<span class="channel-badge channel-${channel.toLowerCase()}">${channel}</span>`:'<span style="color:var(--muted);font-size:.7rem">TBA</span>'}
-        </div>
-      </div>`;
-    }
-    mhtml += '</div></div>';
-  }
-
-  el('matches-content',mhtml||'<p style="color:var(--muted)">Ingen kampdata.</p>');
+  // (Group-stage + KO match rendering moved to renderGruppespillTab() / renderSluttspillTab())
 
   renderSluttspillTab();
 
@@ -4973,16 +4691,42 @@ function renderAll(){
         <span class="match-pill-pts">+${p.groupPosPts||0} p</span>
       </div>`);
     }
-    if((p.groupBonusGroups||0) > 0){
-      extraRows.push(`<div class="match-pill match-pill-gold-hit">
-        <span class="match-pill-teams">Bonus: 100% riktig gruppe (${p.groupBonusGroups} gruppe${p.groupBonusGroups>1?'r':''})</span>
-        <span class="match-pill-pts">+${p.groupBonusGroups*POINTS.groupBonus} p</span>
+    {
+      const bonusPts = (p.groupBonusGroups||0)*POINTS.groupBonus;
+      const cls = bonusPts > 0 ? 'match-pill-gold-hit' : 'match-pill-miss';
+      extraRows.push(`<div class="match-pill ${cls}">
+        <span class="match-pill-teams">Bonus: 100% riktig gruppe+poeng</span>
+        <span class="match-pill-pts">+${bonusPts} p</span>
       </div>`);
     }
     if((p.r32Count||0) > 0 || (p.r32Pts||0) > 0){
       extraRows.push(`<div class="match-pill match-pill-neutral-hit">
         <span class="match-pill-teams">Riktig lag til 16-delsfinale: ${p.r32Count||0}</span>
         <span class="match-pill-pts">+${p.r32Pts||0} p</span>
+      </div>`);
+    }
+    if((p.r16Count||0) > 0 || (p.r16Pts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+        <span class="match-pill-teams">Riktig lag til 8-delsfinale: ${p.r16Count||0}</span>
+        <span class="match-pill-pts">+${p.r16Pts||0} p</span>
+      </div>`);
+    }
+    if((p.qfCount||0) > 0 || (p.qfPts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+        <span class="match-pill-teams">Riktig lag til kvartfinale: ${p.qfCount||0}</span>
+        <span class="match-pill-pts">+${p.qfPts||0} p</span>
+      </div>`);
+    }
+    if((p.sfCount||0) > 0 || (p.sfPts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+        <span class="match-pill-teams">Riktig lag til semifinale: ${p.sfCount||0}</span>
+        <span class="match-pill-pts">+${p.sfPts||0} p</span>
+      </div>`);
+    }
+    if((p.championPts||0) > 0){
+      extraRows.push(`<div class="match-pill match-pill-gold-hit">
+        <span class="match-pill-teams">Riktig verdensmester</span>
+        <span class="match-pill-pts">+${p.championPts} p</span>
       </div>`);
     }
     const extraRowsHtml = extraRows.length ? `<div class="match-pill-extra-section">${extraRows.join('')}</div>` : '';
@@ -5140,6 +4884,7 @@ function renderAll(){
 
 
   // STANDINGS / TABELL
+  const apiMatches = Object.values(state.results).filter(r=>r.group && !r.home.match(/^[12W3L]/));
   const standings = {};
   for(const match of apiMatches){
     if(!match.played) continue;
@@ -5189,8 +4934,14 @@ function renderAll(){
       if(b.GD !== a.GD) return b.GD - a.GD;
       return b.GF - a.GF;
     });
-    thtml += `<div class="standings-group">
-      <div class="standings-header">Gruppe ${g}</div>
+    const groupOuterId = 'gruppe-outer-' + g;
+    thtml += `<div class="match-group" style="margin-bottom:1rem"><button class="group-header-btn group-header-btn-top" onclick="togglePanel('${groupOuterId}')">
+      <span>\u26bd Gruppe ${g}</span>
+      <span class="upcoming-arrow">\u25be</span>
+    </button>
+    <div id="${groupOuterId}" class="match-group-panel">
+    <div class="standings-group" style="margin-bottom:1rem">
+      <div class="standings-header">Tabell Gruppe ${g}</div>
       <table class="standings-table">
         <colgroup>
           <col class="col-pos"><col class="col-team">
@@ -5213,50 +4964,8 @@ function renderAll(){
         <td class="pts-col">${t.Pts}</td>
       </tr>`;
     });
-    thtml += '</tbody></table>';
-    // Upcoming matches expand button
-    const upcoming = apiMatches.filter(m => !m.played && (m.group||'').replace('Group ','') === g)
-      .sort((a,b)=>{
-        const ta = toNorwegianTime(a.date, a.time);
-        const tb = toNorwegianTime(b.date, b.time);
-        return (ta?ta.getTime():0) - (tb?tb.getTime():0);
-      });
-    if(upcoming.length){
-      const panelId = 'upcoming-' + g;
-      let rows = '';
-      for(const match of upcoming){
-        const nt = toNorwegianTime(match.date, match.time);
-        const ch = getChannel(match.home, match.away);
-        const timeLabel = nt ? formatNoTime(nt) : '';
-        const chBadge = ch ? `<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>` : '<span style="color:var(--muted);font-size:.7rem">TBA</span>';
-        const ucPredItems = state.participants.map(p => {
-          const pred = getPred(p, match.home, match.away);
-          if(!pred) return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">\u2013</span></div>`;
-          return `<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
-        }).join('');
-        const ucMatchId = 'uc-' + g + '-' + match.home.replace(/\s/g,'_') + '-' + match.away.replace(/\s/g,'_');
-        rows += `<div class="upcoming-row">
-          <span class="upcoming-teams">${flag(match.home)} ${match.home} <span style="color:var(--muted);margin:0 .4rem">vs</span> ${match.away} ${flag(match.away)}</span>
-          <span class="upcoming-meta"><span class="upcoming-time">${timeLabel}</span>${chBadge}</span>
-        </div>
-        <button class="preds-toggle" onclick="togglePanel('${ucMatchId}')">
-          <span>\ud83c\udfaf Deltakertips</span>
-          <span class="upcoming-arrow">\u25be</span>
-        </button>
-        <div id="${ucMatchId}" class="upcoming-panel upcoming-preds-panel">
-          <div class="pred-grid">${ucPredItems}</div>
-        </div>`;
-      }
-      thtml += `<div class="upcoming-section">
-        <button class="upcoming-toggle" onclick="togglePanel('${panelId}')">
-          <span>\u26a0\ufe0f Kommende kamper Gruppe ${g} (${upcoming.length})</span>
-          <span class="upcoming-arrow">\u25be</span>
-        </button>
-        <div id="${panelId}" class="upcoming-panel">${rows}</div>
-      </div>`;
-    }
-
-    // Previously played matches in this group
+    thtml += '</tbody></table></div>';
+    // Played matches in this group ("Kamper" sub-section)
     const previous = apiMatches.filter(m => m.played && (m.group||'').replace('Group ','') === g)
       .sort((a,b)=>{
         const ta = toNorwegianTime(a.date, a.time);
@@ -5278,8 +4987,10 @@ function renderAll(){
           return `<div class="pred-item ${cls}"><span class="pred-name">${p.name}</span><span class="pred-score">${pred.hg}\u2013${pred.ag}</span></div>`;
         }).join('');
         const prevMatchId = 'prev-' + g + '-' + match.home.replace(/\s/g,'_') + '-' + match.away.replace(/\s/g,'_');
+        const homeWin = match.homeGoals>match.awayGoals ? 'ko-winner' : '';
+        const awayWin = match.awayGoals>match.homeGoals ? 'ko-winner' : '';
         prevRows += `<div class="upcoming-row">
-          <span class="upcoming-teams">${flag(match.home)} ${match.home} <span class="prev-score">${match.homeGoals}\u2013${match.awayGoals}</span> ${match.away} ${flag(match.away)}</span>
+          <span class="upcoming-teams"><span class="${homeWin}">${flag(match.home)} ${match.home}</span> <span class="prev-score">${match.homeGoals}\u2013${match.awayGoals}</span> <span class="${awayWin}">${match.away} ${flag(match.away)}</span></span>
           <span class="upcoming-meta"><span class="upcoming-time">${timeLabel}</span></span>
         </div>
         <button class="preds-toggle" onclick="togglePanel('${prevMatchId}')">
@@ -5291,17 +5002,18 @@ function renderAll(){
           <div style="margin-top:.5rem;font-size:.68rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Eksakt &nbsp;<span style="color:var(--cyan)">\u25a0</span> Riktig H/U/B &nbsp;<span style="opacity:.4">\u25a0</span> Feil</div>
         </div>`;
       }
+      const kamperPanelId = 'kamper-' + g;
       thtml += `<div class="upcoming-section">
-        <button class="upcoming-toggle" onclick="togglePanel('${prevPanelId}')">
-          <span>\u2705 Tidligere kamper Gruppe ${g} (${previous.length})</span>
+        <button class="upcoming-toggle" onclick="togglePanel('${kamperPanelId}')">
+          <span>\u26bd Kamper (${previous.length})</span>
           <span class="upcoming-arrow">\u25be</span>
         </button>
-        <div id="${prevPanelId}" class="upcoming-panel">${prevRows}</div>
+        <div id="${kamperPanelId}" class="upcoming-panel">${prevRows}</div>
       </div>`;
     }
-    thtml += '</div>';
+    thtml += '</div></div>'; // close outer group-stage panel + match-group
   }
-  el('tabell-content', thtml || '<p style="color:var(--muted)">Ingen kampdata ennå.</p>');
+  el('gruppespill-content', thtml || '<p style="color:var(--muted)">Ingen kampdata enn\u00e5.</p>');
 }
 
 // JS doesn't have Python's sum() — fix inline
@@ -5309,12 +5021,12 @@ function sum(n){return n}
 
 // ─── SLUTTSPILL TAB ──────────────────────────────────────────────────
 const KO_ROUNDS = [
-  {round:'Round of 32', label:'16-delsfinale', icon:'\ud83c\udfc6'},
-  {round:'Round of 16', label:'8-delsfinale', icon:'\ud83c\udfc6'},
-  {round:'Quarter-final', label:'Kvartfinale', icon:'\ud83c\udfc6'},
-  {round:'Semi-final', label:'Semifinale', icon:'\ud83c\udfc6'},
-  {round:'Match for third place', label:'Bronsefinale', icon:'\ud83e\udd49'},
-  {round:'Final', label:'Finale', icon:'\ud83c\udfc6'},
+  {round:'Round of 32', label:'16-delsfinale', icon:'\ud83c\udfc6', key:'r32'},
+  {round:'Round of 16', label:'8-delsfinale', icon:'\ud83c\udfc6', key:'r16'},
+  {round:'Quarter-final', label:'Kvartfinale', icon:'\ud83c\udfc6', key:'qf'},
+  {round:'Semi-final', label:'Semifinale', icon:'\ud83c\udfc6', key:'sf'},
+  {round:'Match for third place', label:'Bronsefinale', icon:'\ud83e\udd49', key:null},
+  {round:'Final', label:'Finale', icon:'\ud83c\udfc6', key:null},
 ];
 
 function setSluttspillView(mode){
@@ -5327,6 +5039,51 @@ function setSluttspillView(mode){
 function renderSluttspillTab(){
   if(!state.results || !Object.keys(state.results).length) return;
   const bs = buildBracketState();
+
+  // ─── Kommende kamper: today + tomorrow, ANY category (group or KO) ──
+  const allMatches = Object.values(state.results).filter(m => !m.home.match(/^[12W3L]/) || bs.resolveTeam(m.home).locked);
+  const nowNo = new Date();
+  const todayKey2 = getTodayKey();
+  const tomorrowDate = new Date(nowNo.getTime() + 24*60*60*1000);
+  const tomorrowKey = String(tomorrowDate.getDate()).padStart(2,'0') + '.' + String(tomorrowDate.getMonth()+1).padStart(2,'0');
+  const kommendeMatches = allMatches.filter(m => {
+    const nt = toNorwegianTime(m.date, m.time);
+    if(!nt) return false;
+    const dk = getDateKey(nt);
+    return dk === todayKey2 || dk === tomorrowKey;
+  }).sort((a,b) => {
+    const ta = toNorwegianTime(a.date, a.time), tb = toNorwegianTime(b.date, b.time);
+    return (ta?ta.getTime():0) - (tb?tb.getTime():0);
+  });
+  let kommendeHtml = '';
+  if(kommendeMatches.length){
+    kommendeHtml += '<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper (i dag + i morgen)</div>';
+    for(const m of kommendeMatches){
+      const homeR2 = CONFIRMED_R32[m.num] ? {name:CONFIRMED_R32[m.num].home,locked:true} : bs.resolveTeam(m.home);
+      const awayR2 = CONFIRMED_R32[m.num] ? {name:CONFIRMED_R32[m.num].away,locked:true} : bs.resolveTeam(m.away);
+      const nt = toNorwegianTime(m.date, m.time);
+      const hh = nt ? String(nt.getUTCHours()).padStart(2,'0') : '?';
+      const mi = nt ? String(nt.getUTCMinutes()).padStart(2,'0') : '?';
+      const ch = m.num ? (KO_CHANNEL_MAP[m.num] || getChannel(homeR2.name, awayR2.name)) : getChannel(m.home, m.away);
+      const played = m.played;
+      const isLive2 = !played && nt && (Date.now() >= nt.getTime()) && (Date.now() <= nt.getTime() + 150*60*1000);
+      const scoreOrDash2 = played
+        ? `<span class="today-score">${m.homeGoals} \u2013 ${m.awayGoals}</span>`
+        : isLive2 ? '<span class="today-score live-pulse">\ud83d\udd34 LIVE</span>' : '<span class="today-score" style="color:var(--muted)">vs</span>';
+      const dateLabel2 = nt ? String(nt.getUTCDate()).padStart(2,'0') + '.' + String(nt.getUTCMonth()+1).padStart(2,'0') : '';
+      const rightSide2 = played
+        ? (`<span class="today-kickoff" style="color:var(--muted);font-size:.85em">${dateLabel2}</span> ` + (ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:''))
+        : `<span class="today-kickoff">${dateLabel2} kl. ${hh}:${mi}</span> ${ch?`<span class="channel-badge channel-${ch.toLowerCase()}">${ch}</span>`:'<span class="channel-badge" style="background:var(--border);color:var(--muted)">TBA</span>'}`;
+      kommendeHtml += `<div class="today-row">
+        <span class="today-teams">${homeR2.locked?flag(homeR2.name):''} ${homeR2.name} ${scoreOrDash2} ${awayR2.name} ${awayR2.locked?flag(awayR2.name):''}</span>
+        <span class="today-right">${rightSide2}</span>
+      </div>`;
+    }
+    kommendeHtml += '</div>';
+  } else {
+    kommendeHtml = '<div class="today-section"><div class="today-header">\u23ED\uFE0F Kommende kamper (i dag + i morgen)</div><div style="padding:.75rem 1rem;color:var(--muted);font-size:.85rem">Ingen kamper i dag eller i morgen.</div></div>';
+  }
+  el('sluttspill-kommende', kommendeHtml);
 
   // ─── Mester-tips summary (reuse champion grouping) ─────────────────
   const byTeam = {};
@@ -5346,7 +5103,7 @@ function renderSluttspillTab(){
 
   // ─── Liste mode ─────────────────────────────────────────────────────
   let listeHtml = '';
-  for(const {round, label, icon} of KO_ROUNDS){
+  for(const {round, label, icon, key} of KO_ROUNDS){
     const matches = bs.koMatches.filter(m=>m.round===round).sort((a,b)=>(a.num||0)-(b.num||0));
     if(!matches.length) continue;
     const playedCount = matches.filter(m=>m.played).length;
@@ -5385,11 +5142,27 @@ function renderSluttspillTab(){
         </div>
       </div>`;
       if(canShowPreds){
-        const champPicks = state.participants.filter(p=>p.knockout&&p.knockout.champion===homeR.name || p.knockout&&p.knockout.champion===awayR.name)
-          .map(p=>`<div class="pred-item"><span class="pred-name">${p.name}</span><span class="pred-score">${p.knockout.champion}</span></div>`).join('');
+        const homePicks = state.participants.filter(p => key && p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === homeR.name));
+        const awayPicks = state.participants.filter(p => key && p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === awayR.name));
+        const homeNames = new Set(homePicks.map(p=>p.name));
+        const awayNames = new Set(awayPicks.map(p=>p.name));
+        const bothNames = [...homeNames].filter(n=>awayNames.has(n));
+        const onlyHome = [...homeNames].filter(n=>!awayNames.has(n));
+        const onlyAway = [...awayNames].filter(n=>!homeNames.has(n));
+        let tipsHtml = '';
+        if(bothNames.length){
+          tipsHtml += `<div class="tip-group-row tip-both"><span class="tip-group-names">${bothNames.join(', ')}</span><span class="tip-group-pick">${homeR.name} \u2013 ${awayR.name}</span></div>`;
+        }
+        if(onlyHome.length){
+          tipsHtml += `<div class="tip-group-row"><span class="tip-group-names">${onlyHome.join(', ')}</span><span class="tip-group-pick">${homeR.name}</span></div>`;
+        }
+        if(onlyAway.length){
+          tipsHtml += `<div class="tip-group-row"><span class="tip-group-names">${onlyAway.join(', ')}</span><span class="tip-group-pick">${awayR.name}</span></div>`;
+        }
         listeHtml += `<div id="${pid}" class="predictions-panel">
-          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Mester-tips blant disse lagene</div>
-          <div class="pred-grid">${champPicks || '<p style="color:var(--muted);font-size:.85rem">Ingen har tippet disse lagene som mester.</p>'}</div>
+          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Hvem har tippet disse lagene videre</div>
+          <div class="tip-group-list">${tipsHtml || '<p style="color:var(--muted);font-size:.85rem">Ingen har tippet noen av disse lagene videre.</p>'}</div>
+          <div style="margin-top:.5rem;font-size:.68rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Tippet begge lag videre i denne runden</div>
         </div>`;
       }
     }
@@ -5559,7 +5332,7 @@ function attachHoverHandlersFor(containerId){
 
 
 // Swipe navigation on mobile
-const SECTIONS_ORDER = ['ledertavle', 'kamper', 'sluttspill', 'tabell', 'deltakere', 'poeng'];
+const SECTIONS_ORDER = ['ledertavle', 'gruppespill', 'sluttspill', 'deltakere', 'poeng'];
 function navigateToSection(sectionId) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
