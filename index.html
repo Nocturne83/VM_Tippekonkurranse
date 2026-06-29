@@ -4324,7 +4324,30 @@ function computeGroupTable(matchList){
     else { teams[m.home].Pts++; teams[m.away].Pts++; }
   }
   for(const t of Object.values(teams)) t.GD = t.GF - t.GA;
-  return Object.values(teams).sort((a,b) => b.Pts!==a.Pts ? b.Pts-a.Pts : b.GD!==a.GD ? b.GD-a.GD : b.GF-a.GF);
+
+  // Head-to-head tiebreaker for teams tied on Pts/GD/GF (instead of
+  // falling back to arbitrary insertion order, which is non-deterministic
+  // relative to the team's real ranking criteria).
+  function headToHead(a, b){
+    const direct = matchList.filter(m =>
+      (m.home===a.team && m.away===b.team) || (m.home===b.team && m.away===a.team));
+    let aGF=0, aGA=0;
+    for(const m of direct){
+      if(m.home===a.team){ aGF+=m.homeGoals; aGA+=m.awayGoals; }
+      else { aGF+=m.awayGoals; aGA+=m.homeGoals; }
+    }
+    const aGD = aGF - aGA;
+    if(aGD !== 0) return -aGD; // positive h2h GD for a means a should rank higher
+    if(aGF !== aGA) return -(aGF - aGA);
+    return a.team.localeCompare(b.team); // final deterministic fallback
+  }
+
+  return Object.values(teams).sort((a,b) => {
+    if(b.Pts !== a.Pts) return b.Pts - a.Pts;
+    if(b.GD !== a.GD) return b.GD - a.GD;
+    if(b.GF !== a.GF) return b.GF - a.GF;
+    return headToHead(a, b);
+  });
 }
 
 // Build shared bracket-resolution state (group standings, best-thirds, resolveTeam).
@@ -4485,7 +4508,18 @@ async function boot(){
           predMatches.push({home:m.home, away:m.away, homeGoals:pred.hg, awayGoals:pred.ag});
         }
         if(predMatches.length !== 6) continue;
-        const predictedOrder = computeGroupTable(predMatches); // array of {team,Pts,...}
+        let predictedOrder = computeGroupTable(predMatches); // array of {team,Pts,...}
+        // One-time manual tiebreak: Olav's Group J prediction is a genuine
+        // tie (Pts/GD/GF/head-to-head all equal) between Austria and Algeria.
+        // Per his Excel sheet's own row order, Austria ranks above Algeria.
+        // This is a deliberate one-off override, not a general rule.
+        if(p.name === 'Olav' && g === 'J'){
+          const ai = predictedOrder.findIndex(t=>t.team==='Algeria');
+          const oi = predictedOrder.findIndex(t=>t.team==='Austria');
+          if(ai !== -1 && oi !== -1 && ai < oi){
+            [predictedOrder[ai], predictedOrder[oi]] = [predictedOrder[oi], predictedOrder[ai]];
+          }
+        }
         const actualOrder = groupActualOrder[g]; // array of {team,Pts,...}
         let correctPositions = 0;
         let allPositionsAndPointsMatch = true;
@@ -4648,6 +4682,13 @@ function renderAll(){
 
   renderSluttspillTab();
 
+  // Has the first match of each KO round been played yet? (gates visibility
+  // of the corresponding "Riktig lag til ..." row on participant cards)
+  const koMatchesAll = Object.values(state.results).filter(m => !m.group);
+  const r16Started = koMatchesAll.some(m => m.round === 'Round of 16' && m.played);
+  const qfStarted = koMatchesAll.some(m => m.round === 'Quarter-final' && m.played);
+  const sfStarted = koMatchesAll.some(m => m.round === 'Semi-final' && m.played);
+
   const phtml=state.participants.map(p=>{
     const champ=(p.knockout&&p.knockout.champion)||'\u2013';
     const detailId = 'pdetail-'+p.name.replace(/\s/g,'_');
@@ -4705,20 +4746,20 @@ function renderAll(){
         <span class="match-pill-pts">+${p.r32Pts||0} p</span>
       </div>`);
     }
-    if((p.r16Count||0) > 0 || (p.r16Pts||0) > 0){
-      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+    if(r16Started){
+      extraRows.push(`<div class="match-pill ${(p.r16Pts||0)>0?'match-pill-neutral-hit':'match-pill-miss'}">
         <span class="match-pill-teams">Riktig lag til 8-delsfinale: ${p.r16Count||0}</span>
         <span class="match-pill-pts">+${p.r16Pts||0} p</span>
       </div>`);
     }
-    if((p.qfCount||0) > 0 || (p.qfPts||0) > 0){
-      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+    if(qfStarted){
+      extraRows.push(`<div class="match-pill ${(p.qfPts||0)>0?'match-pill-neutral-hit':'match-pill-miss'}">
         <span class="match-pill-teams">Riktig lag til kvartfinale: ${p.qfCount||0}</span>
         <span class="match-pill-pts">+${p.qfPts||0} p</span>
       </div>`);
     }
-    if((p.sfCount||0) > 0 || (p.sfPts||0) > 0){
-      extraRows.push(`<div class="match-pill match-pill-neutral-hit">
+    if(sfStarted){
+      extraRows.push(`<div class="match-pill ${(p.sfPts||0)>0?'match-pill-neutral-hit':'match-pill-miss'}">
         <span class="match-pill-teams">Riktig lag til semifinale: ${p.sfCount||0}</span>
         <span class="match-pill-pts">+${p.sfPts||0} p</span>
       </div>`);
@@ -5129,7 +5170,7 @@ function renderSluttspillTab(){
         else if(match.awayGoals>match.homeGoals) awayWinClass='ko-winner';
       }
       const pid = 'pred-sluttspill-'+(match.num||0);
-      const canShowPreds = homeR.locked && awayR.locked;
+      const canShowPreds = homeR.locked || awayR.locked;
       listeHtml += `<div class="match-row ${played?'played':''}" ${canShowPreds?`onclick="togglePanel('${pid}')"`:''}>
         <div class="match-teams">
           <span class="team-name home ${homeWinClass}">${homeR.locked?flag(homeR.name):''} ${homeR.name}</span>
@@ -5142,11 +5183,11 @@ function renderSluttspillTab(){
         </div>
       </div>`;
       if(canShowPreds){
-        const homePicks = state.participants.filter(p => key && p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === homeR.name));
-        const awayPicks = state.participants.filter(p => key && p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === awayR.name));
+        const homePicks = (homeR.locked && key) ? state.participants.filter(p => p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === homeR.name)) : [];
+        const awayPicks = (awayR.locked && key) ? state.participants.filter(p => p.knockout && p.knockout[key] && p.knockout[key].some(t => norm(t) === awayR.name)) : [];
         const homeNames = new Set(homePicks.map(p=>p.name));
         const awayNames = new Set(awayPicks.map(p=>p.name));
-        const bothNames = [...homeNames].filter(n=>awayNames.has(n));
+        const bothNames = (homeR.locked && awayR.locked) ? [...homeNames].filter(n=>awayNames.has(n)) : [];
         const onlyHome = [...homeNames].filter(n=>!awayNames.has(n));
         const onlyAway = [...awayNames].filter(n=>!homeNames.has(n));
         let tipsHtml = '';
@@ -5159,10 +5200,13 @@ function renderSluttspillTab(){
         if(onlyAway.length){
           tipsHtml += `<div class="tip-group-row"><span class="tip-group-names">${onlyAway.join(', ')}</span><span class="tip-group-pick">${awayR.name}</span></div>`;
         }
+        const noteText = (homeR.locked && awayR.locked)
+          ? '<span style="color:var(--gold)">\u25a0</span> Tippet begge lag videre i denne runden'
+          : 'Motstander ikke avklart enn\u00e5 \u2014 viser kun tips for kjent lag';
         listeHtml += `<div id="${pid}" class="predictions-panel">
-          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Hvem har tippet disse lagene videre</div>
+          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Hvem har disse lagene med videre i denne runden</div>
           <div class="tip-group-list">${tipsHtml || '<p style="color:var(--muted);font-size:.85rem">Ingen har tippet noen av disse lagene videre.</p>'}</div>
-          <div style="margin-top:.5rem;font-size:.68rem;color:var(--muted)"><span style="color:var(--gold)">\u25a0</span> Tippet begge lag videre i denne runden</div>
+          <div style="margin-top:.5rem;font-size:.68rem;color:var(--muted)">${noteText}</div>
         </div>`;
       }
     }
